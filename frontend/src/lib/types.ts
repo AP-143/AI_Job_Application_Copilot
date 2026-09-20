@@ -65,3 +65,14 @@ export interface ProfileExtractionResult {
   source_filename: string;
   raw_text_length: number;
 }
+
+export interface CandidateProfileRow {
+  id: string;
+  user_id: string;
+  source_filename: string;
+  profile: CandidateProfile;
+  warnings: ExtractionWarning[];
+  raw_text_length: number;
+  created_at: string;
+  updated_at: string;
+}

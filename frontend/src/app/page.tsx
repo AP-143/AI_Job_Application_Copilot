@@ -1,38 +1,30 @@
-"use client";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import Dashboard from "@/components/Dashboard";
+import type { CandidateProfileRow } from "@/lib/types";
 
-import { useState } from "react";
-import CvUploader from "@/components/CvUploader";
-import ProfileReview from "@/components/ProfileReview";
-import type { ProfileExtractionResult } from "@/lib/types";
+export default async function Home() {
+  const supabase = await createClient();
 
-export default function Home() {
-  const [result, setResult] = useState<ProfileExtractionResult | null>(null);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profileRow } = await supabase
+    .from("candidate_profiles")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle<CandidateProfileRow>();
 
   return (
-    <main className="flex-1">
-      <div className="mx-auto max-w-2xl px-6 py-20">
-        <p className="text-xs uppercase tracking-[0.2em] text-ink-soft">
-          Job Application Copilot
-        </p>
-        <h1 className="mt-3 font-display text-4xl leading-tight text-ink">
-          Mulai dari CV kamu.
-        </h1>
-        <p className="mt-3 max-w-md text-ink-soft">
-          Upload CV master, kami baca dan susun jadi data terstruktur —
-          dasar untuk mencari lowongan yang cocok dan menyiapkan dokumen
-          lamaran. Kamu yang tetap menekan tombol submit.
-        </p>
-
-        <div className="mt-10">
-          <CvUploader onExtracted={setResult} />
-        </div>
-
-        {result && (
-          <div className="mt-16">
-            <ProfileReview result={result} />
-          </div>
-        )}
-      </div>
-    </main>
+    <Dashboard
+      userId={user.id}
+      userEmail={user.email ?? ""}
+      initialProfile={profileRow}
+    />
   );
 }
