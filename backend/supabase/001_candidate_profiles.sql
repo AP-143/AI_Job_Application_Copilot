@@ -19,6 +19,10 @@ create index if not exists candidate_profiles_user_id_idx
 
 alter table public.candidate_profiles enable row level security;
 
+-- Base table privileges: required in addition to the RLS policies below
+-- when the project's "Automatically expose new tables" setting is off.
+grant select, insert, update, delete on public.candidate_profiles to authenticated;
+
 create policy "Users can view their own profile"
   on public.candidate_profiles for select
   using (auth.uid() = user_id);

@@ -18,7 +18,7 @@ export default function LoginPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { error } =
+    const { data, error } =
       mode === "signin"
         ? await supabase.auth.signInWithPassword({ email, password })
         : await supabase.auth.signUp({ email, password });
@@ -27,6 +27,13 @@ export default function LoginPage() {
 
     if (error) {
       setError(error.message);
+      return;
+    }
+
+    if (!data.session) {
+      setError(
+        "Akun dibuat, tapi belum ada sesi login. Cek email kamu untuk konfirmasi, lalu coba masuk lagi."
+      );
       return;
     }
 
