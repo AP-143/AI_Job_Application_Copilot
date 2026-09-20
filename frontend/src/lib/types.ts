@@ -76,3 +76,45 @@ export interface CandidateProfileRow {
   created_at: string;
   updated_at: string;
 }
+
+export interface JobListing {
+  source: string;
+  source_url: string;
+  title: string;
+  company?: string | null;
+  location?: string | null;
+  remote: boolean;
+  salary_text?: string | null;
+  posted_at?: string | null;
+  description?: string | null;
+}
+
+export interface JobSearchRequest {
+  job_title: string;
+  location: string;
+  remote_only: boolean;
+  target_companies?: string;
+}
+
+export interface JobSearchResponse {
+  listings: JobListing[];
+  source_errors: string[];
+}
+
+export interface JobSearchPreferencesRow {
+  id: string;
+  user_id: string;
+  job_title: string;
+  location: string;
+  remote_only: boolean;
+  target_companies: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JobListingRow extends JobListing {
+  id: string;
+  user_id: string;
+  fetched_at: string;
+  hidden: boolean;
+}

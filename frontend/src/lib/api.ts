@@ -1,4 +1,8 @@
-import type { ProfileExtractionResult } from "./types";
+import type {
+  ProfileExtractionResult,
+  JobSearchRequest,
+  JobSearchResponse,
+} from "./types";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:8000";
@@ -17,6 +21,26 @@ export async function extractProfile(file: File): Promise<ProfileExtractionResul
   const res = await fetch(`${API_BASE_URL}/api/profile/extract`, {
     method: "POST",
     body: formData,
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new ApiError(
+      body?.detail ?? `Request failed with status ${res.status}`,
+      res.status
+    );
+  }
+
+  return res.json();
+}
+
+export async function searchJobs(
+  request: JobSearchRequest
+): Promise<JobSearchResponse> {
+  const res = await fetch(`${API_BASE_URL}/api/jobs/search`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
   });
 
   if (!res.ok) {
