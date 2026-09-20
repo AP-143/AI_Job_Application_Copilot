@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import profile
+from app.api.routes import jobs, profile
 from app.config import get_settings
 
 settings = get_settings()
@@ -19,6 +19,7 @@ app.add_middleware(
 )
 
 app.include_router(profile.router)
+app.include_router(jobs.router)
 
 
 @app.get("/health")
