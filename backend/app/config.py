@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     supabase_url: str = ""
     supabase_service_role_key: str = ""
 
+    # Adzuna
+    adzuna_app_id: str = ""
+    adzuna_app_key: str = ""
+
     # App
     cors_origins: list[str] = ["http://localhost:3000"]
     max_upload_mb: int = 10
