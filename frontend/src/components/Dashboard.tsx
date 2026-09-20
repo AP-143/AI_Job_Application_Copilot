@@ -66,6 +66,9 @@ export default function Dashboard({
             Job Application Copilot
           </p>
           <div className="flex items-center gap-4 text-xs text-ink-soft">
+            <a href="/jobs" className="underline underline-offset-4 hover:text-ink">
+              Cari Lowongan
+            </a>
             <span>{userEmail}</span>
             <LogoutButton />
           </div>

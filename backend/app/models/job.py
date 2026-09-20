@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 from typing import Optional
+from urllib.parse import urlparse
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class JobListing(BaseModel):
@@ -16,6 +17,16 @@ class JobListing(BaseModel):
     salary_text: Optional[str] = None
     posted_at: Optional[str] = None  # YYYY-MM-DD
     description: Optional[str] = None
+
+    @field_validator("source_url")
+    @classmethod
+    def _require_http_scheme(cls, value: str) -> str:
+        # Sources include Gemini-grounded web search, which reflects
+        # whatever a third-party page returned — never trust its scheme
+        # (e.g. javascript:) before it ends up in an <a href> on the client.
+        if urlparse(value).scheme not in ("http", "https"):
+            raise ValueError(f"source_url must be http(s), got: {value!r}")
+        return value
 
 
 class JobSearchRequest(BaseModel):

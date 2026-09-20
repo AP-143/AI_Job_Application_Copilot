@@ -68,19 +68,22 @@ def _run_grounded_search(prompt: str, api_key: str, model: str) -> list[JobListi
     for item in raw_items:
         if not isinstance(item, dict) or not item.get("source_url"):
             continue
-        results.append(
-            JobListing(
-                source="gemini",
-                source_url=item["source_url"],
-                title=item.get("title", ""),
-                company=item.get("company"),
-                location=item.get("location"),
-                remote=bool(item.get("remote", False)),
-                salary_text=item.get("salary_text"),
-                posted_at=item.get("posted_at"),
-                description=item.get("description"),
+        try:
+            results.append(
+                JobListing(
+                    source="gemini",
+                    source_url=item["source_url"],
+                    title=item.get("title", ""),
+                    company=item.get("company"),
+                    location=item.get("location"),
+                    remote=bool(item.get("remote", False)),
+                    salary_text=item.get("salary_text"),
+                    posted_at=item.get("posted_at"),
+                    description=item.get("description"),
+                )
             )
-        )
+        except ValueError:
+            continue  # untrusted URL scheme or other invalid field — skip this item
     return results
 
 
