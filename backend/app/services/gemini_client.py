@@ -1,7 +1,8 @@
 """Thin wrapper around the Gemini API for structured CV extraction."""
 from __future__ import annotations
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from app.config import get_settings
 from app.models.profile import CandidateProfile
@@ -47,15 +48,14 @@ def extract_candidate_profile(cv_text: str) -> CandidateProfile:
             "GEMINI_API_KEY is not configured on the backend."
         )
 
-    genai.configure(api_key=settings.gemini_api_key)
-    model = genai.GenerativeModel(settings.gemini_model)
-
+    client = genai.Client(api_key=settings.gemini_api_key)
     prompt = _EXTRACTION_PROMPT.format(cv_text=cv_text)
 
     try:
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.GenerationConfig(
+        response = client.models.generate_content(
+            model=settings.gemini_model,
+            contents=prompt,
+            config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=CandidateProfile,
                 temperature=0.1,
