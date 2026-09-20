@@ -6,16 +6,19 @@ tetap yang submit lamaran secara manual (human-in-the-loop).
 
 ## Status
 
-Baru fitur pertama: **Profile Extractor** — upload CV (PDF/DOCX/TXT) →
-diekstrak jadi data terstruktur (kontak, summary, skills, experience,
-education, projects, certifications, languages) pakai Gemini structured
-output, dijalankan lewat pipeline LangGraph kecil (`parse → extract →
-validate`).
+**Profile Extractor** — upload CV (PDF/DOCX/TXT) → diekstrak jadi data
+terstruktur (kontak, summary, skills, experience, education, projects,
+certifications, languages) pakai Gemini structured output, dijalankan lewat
+pipeline LangGraph kecil (`parse → extract → validate`).
+
+**Auth + simpan profil** — login/daftar pakai email+password (Supabase
+Auth). Tiap ekstraksi sukses otomatis ke-upsert ke `candidate_profiles`
+(RLS scoped ke user). User yang sudah punya profil tersimpan langsung
+lihat itu pas buka app lagi, dengan tombol "Upload CV baru" buat replace.
 
 Belum dikerjakan: job search (job board APIs + Gemini grounding),
-validasi/enrichment lowongan, matching, generate CV tailored & cover letter,
-tracker. Skema Supabase untuk simpan hasil ekstraksi sudah disiapkan tapi
-belum di-wire ke auth/flow simpan-otomatis di app.
+validasi/enrichment lowongan, matching, generate CV tailored & cover
+letter, tracker.
 
 ## Struktur
 
@@ -45,15 +48,24 @@ npm install
 npm run dev
 ```
 
-Buka `http://localhost:3000` — ada uploader CV, hasil ekstraksi tampil di
-bawahnya untuk direview.
+Buka `http://localhost:3000` — kalau belum login, kelempar ke `/login`
+(daftar/masuk pakai email+password). Setelah login: uploader CV, atau
+profil tersimpan kalau sudah pernah upload.
 
 ## Supabase
 
-Migration ada di `backend/supabase/001_candidate_profiles.sql` — tabel
-`candidate_profiles` (satu profil per user, RLS scoped ke `auth.uid()`).
-Belum ada auth di frontend, jadi endpoint extract saat ini stateless (tidak
-otomatis simpan ke DB) — itu langkah berikutnya setelah auth masuk.
+Perlu project Supabase (buat, matiin "Confirm email" di Authentication →
+Providers → Email biar signup langsung login, lalu jalanin
+`backend/supabase/001_candidate_profiles.sql` di SQL Editor). Kalau opsi
+"Automatically expose new tables" dimatiin pas bikin project, tambahin
+juga (sudah termasuk di file migration):
+
+```sql
+grant select, insert, update, delete on public.candidate_profiles to authenticated;
+```
+
+Isi `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+(publishable key) di `frontend/.env.local`.
 
 ## Desain
 
@@ -64,12 +76,11 @@ hairline border, tanpa gradient/shadow berlebihan.
 
 ## Next steps (saran urutan)
 
-1. Auth (Supabase) + simpan hasil extract ke `candidate_profiles`.
-2. Job search pipeline (LangGraph): job board APIs + Gemini grounding
+1. Job search pipeline (LangGraph): job board APIs + Gemini grounding
    (umum & spesifik) sebagai node-node paralel, lalu merge.
-3. Validasi lowongan (cek link, red flag) + enrichment (salary, visa tag,
+2. Validasi lowongan (cek link, red flag) + enrichment (salary, visa tag,
    company snapshot, freshness).
-4. Matching + skor kecocokan.
-5. Generate CV tailored (template ATS-friendly) + cover letter + form
+3. Matching + skor kecocokan.
+4. Generate CV tailored (template ATS-friendly) + cover letter + form
    answer draft.
-6. Tracker status lamaran (manual update oleh user).
+5. Tracker status lamaran (manual update oleh user).
