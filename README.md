@@ -16,9 +16,13 @@ Auth). Tiap ekstraksi sukses otomatis ke-upsert ke `candidate_profiles`
 (RLS scoped ke user). User yang sudah punya profil tersimpan langsung
 lihat itu pas buka app lagi, dengan tombol "Upload CV baru" buat replace.
 
-Belum dikerjakan: job search (job board APIs + Gemini grounding),
-validasi/enrichment lowongan, matching, generate CV tailored & cover
-letter, tracker.
+**Job search** — cari lowongan lintas sumber (RemoteOK, Himalayas, Adzuna,
+Gemini grounded search) lewat pipeline LangGraph (fetch paralel → merge →
+dedupe), dipanggil dari halaman `/jobs` dengan form preferensi (role,
+lokasi, remote-only, dst). Listing lama auto-hide.
+
+Belum dikerjakan: validasi/enrichment lowongan, matching, generate CV
+tailored & cover letter, tracker.
 
 ## Struktur
 
@@ -76,11 +80,9 @@ hairline border, tanpa gradient/shadow berlebihan.
 
 ## Next steps (saran urutan)
 
-1. Job search pipeline (LangGraph): job board APIs + Gemini grounding
-   (umum & spesifik) sebagai node-node paralel, lalu merge.
-2. Validasi lowongan (cek link, red flag) + enrichment (salary, visa tag,
+1. Validasi lowongan (cek link, red flag) + enrichment (salary, visa tag,
    company snapshot, freshness).
-3. Matching + skor kecocokan.
-4. Generate CV tailored (template ATS-friendly) + cover letter + form
+2. Matching + skor kecocokan.
+3. Generate CV tailored (template ATS-friendly) + cover letter + form
    answer draft.
-5. Tracker status lamaran (manual update oleh user).
+4. Tracker status lamaran (manual update oleh user).
