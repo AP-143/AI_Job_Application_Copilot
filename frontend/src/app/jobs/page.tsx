@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AppHeader from "@/components/AppHeader";
@@ -35,47 +36,39 @@ export default async function JobsPage() {
     ]);
 
   return (
-    <main className="min-h-[100svh] bg-paper text-ink">
+    <main className="wash min-h-[100svh]">
       <AppHeader active="jobs" userEmail={user.email ?? ""} />
-      <div className="relative mx-auto max-w-[1440px] px-4 py-8 sm:px-6 sm:py-12 lg:px-10 lg:py-16">
-        <div
-          aria-hidden="true"
-          className="absolute inset-y-0 left-4 hidden w-px bg-line sm:left-6 lg:block lg:left-10"
-        />
 
-        <header className="relative grid gap-8 border-b border-line pb-10 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-end lg:pb-14">
-          <div>
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">
-              02 / Global application desk
-            </p>
-            <h1 className="mt-4 max-w-3xl font-display text-5xl leading-[0.93] tracking-[-0.045em] text-ink sm:text-6xl lg:text-7xl">
-              Meja pencarian global.
-            </h1>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-ink-soft sm:text-lg">
-              Susun brief yang spesifik, pantau pasar kerja, lalu pilih
-              lowongan yang layak masuk ke dossier lamaran kamu.
-            </p>
-          </div>
-
-          <div className="border-l-2 border-accent pl-4">
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-soft">
-              Search protocol
-            </p>
-            <p className="mt-2 text-sm leading-5 text-ink">
-              Brief dahulu. Keputusan setelah fakta terkumpul.
-            </p>
-          </div>
-        </header>
-
-        <div className="relative pt-10 sm:pt-12">
-          <JobSearchPanel
-            userId={user.id}
-            hasProfile={Boolean(profile)}
-            initialPreferences={preferences}
-            initialListings={(listings as JobListingRow[]) ?? []}
-          />
+      <header className="page flex flex-col items-center pt-14 pb-12 text-center sm:pt-24 sm:pb-16">
+        <div className="animate-rise mb-8 inline-flex flex-wrap items-center justify-center gap-1.5 rounded-full border border-line p-1.5">
+          {["RemoteOK", "Himalayas", "Adzuna", "Gemini"].map((source) => (
+            <span key={source} className="inline-flex min-h-7 items-center rounded-full bg-sunken px-3 text-tag font-bold uppercase text-ink">
+              {source}
+            </span>
+          ))}
         </div>
-      </div>
+        <h1 className="max-w-[16ch] text-[clamp(2.25rem,5.2vw,4.25rem)] leading-[1.07] font-light tracking-[-0.03em] text-ink">
+          <span className="reveal-line">
+            <span>Lowongan yang</span>
+          </span>
+          <span className="reveal-line" style={{ "--i": 1 } as CSSProperties}>
+            <span>
+              <strong className="font-bold">masih segar.</strong>
+            </span>
+          </span>
+        </h1>
+        <p className="animate-rise mt-6 max-w-[34rem] text-lead font-light text-ink-2" style={{ animationDelay: "300ms" }}>
+          Tulis peran dan lokasi yang kamu incar. Kami cari di beberapa sumber sekaligus dan hanya menampilkan yang
+          diposting dalam 30 hari terakhir.
+        </p>
+      </header>
+
+      <JobSearchPanel
+        userId={user.id}
+        hasProfile={Boolean(profile)}
+        initialPreferences={preferences}
+        initialListings={(listings as JobListingRow[]) ?? []}
+      />
     </main>
   );
 }

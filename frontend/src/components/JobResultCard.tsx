@@ -1,6 +1,7 @@
 import type { JobListingRow } from "@/lib/types";
+import { ArrowDot, Icon, Tag } from "./ui";
 
-const SOURCE_LABELS: Record<string, string> = {
+export const SOURCE_LABELS: Record<string, string> = {
   remoteok: "RemoteOK",
   himalayas: "Himalayas",
   adzuna: "Adzuna",
@@ -8,120 +9,137 @@ const SOURCE_LABELS: Record<string, string> = {
   gemini_specific: "Gemini (target)",
 };
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "Mei",
-  "Jun",
-  "Jul",
-  "Agu",
-  "Sep",
-  "Okt",
-  "Nov",
-  "Des",
-];
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function safeHref(url: string): string | null {
   try {
     const parsed = new URL(url);
-    return parsed.protocol === "http:" || parsed.protocol === "https:"
-      ? url
-      : null;
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? url : null;
   } catch {
     return null;
   }
 }
 
-function formatDate(value: string | null | undefined): string | null {
+const ENTITY: Record<string, string> = {
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": "\"",
+  "&#39;": "'",
+  "&#x27;": "'",
+  "&nbsp;": " ",
+};
+
+// Windows-1252 code points for bytes 0x80-0x9F, used to undo UTF-8 text that was decoded as cp1252.
+const CP1252 = "€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ";
+
+const MOJIBAKE_RUN = new RegExp(`[\u00c2-\u00f4][\u0080-\u00bf${CP1252}]+`, "g");
+
+function decodeRun(run: string): string {
+  const bytes = Array.from(run, (ch) => {
+    const code = ch.charCodeAt(0);
+    return code <= 0xff ? code : 0x80 + CP1252.indexOf(ch);
+  });
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(new Uint8Array(bytes));
+  } catch {
+    return run;
+  }
+}
+
+function repairMojibake(value: string): string {
+  return value.replace(MOJIBAKE_RUN, decodeRun);
+}
+
+// Source feeds sometimes ship HTML entities or double-encoded UTF-8; clean for display only.
+export function cleanText(value: string): string {
+  return repairMojibake(value).replace(/&(?:amp|lt|gt|quot|nbsp|#39|#x27);/g, (match) => ENTITY[match] ?? match);
+}
+
+function daysAgo(value: string | null | undefined): number | null {
   if (!value) return null;
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-
-  return (
-    String(date.getUTCDate()).padStart(2, "0") +
-    " " +
-    MONTHS[date.getUTCMonth()] +
-    " " +
-    date.getUTCFullYear()
-  );
+  const time = new Date(value).getTime();
+  if (Number.isNaN(time)) return null;
+  return Math.max(0, Math.floor((Date.now() - time) / DAY_MS));
 }
 
-function conciseDescription(description: string): string {
-  const copy = description.replace(/\s+/g, " ").trim();
-  return copy.length > 260 ? copy.slice(0, 257).trimEnd() + "…" : copy;
-}
-
-function Fact({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
-        {label}
-      </dt>
-      <dd className="mt-1 text-sm leading-5 text-ink">{value}</dd>
-    </div>
-  );
+function ageLabel(days: number): string {
+  if (days === 0) return "Hari ini";
+  if (days === 1) return "Kemarin";
+  return `${days} hari lalu`;
 }
 
 export default function JobResultCard({ job }: { job: JobListingRow }) {
   const href = safeHref(job.source_url);
-  const postedAt = formatDate(job.posted_at);
-  const fetchedAt = formatDate(job.fetched_at);
-  const description = job.description ? conciseDescription(job.description) : null;
+  const postedDays = daysAgo(job.posted_at);
+  const fetchedDays = daysAgo(job.fetched_at);
+  const title = cleanText(job.title);
+  const description = job.description ? cleanText(job.description).replace(/s+/g, " ").trim() : null;
   const titleId = "job-title-" + job.id;
-  const companyAndLocation = [job.company, job.location]
-    .filter(Boolean)
-    .join(" · ");
+  const company = job.company ? cleanText(job.company) : null;
+  const location = job.location ? cleanText(job.location) : null;
+  const source = SOURCE_LABELS[job.source] ?? job.source;
+  const age =
+    postedDays !== null
+      ? ageLabel(postedDays)
+      : fetchedDays !== null
+        ? `Ditemukan ${ageLabel(fetchedDays).toLowerCase()}`
+        : "Tanpa tanggal";
 
   return (
     <article
       aria-labelledby={titleId}
-      className="border border-line bg-surface px-5 py-5 shadow-[3px_3px_0_var(--paper-deep)] transition-[transform,box-shadow] hover:-translate-y-px hover:shadow-[5px_5px_0_var(--paper-deep)] focus-within:border-[var(--cobalt)] sm:px-6"
+      className="group relative flex h-full flex-col rounded-xs border border-dk-line bg-white/[0.035] p-5 transition-[background-color,border-color,transform] duration-[var(--dur-base)] ease-[var(--ease)] hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/[0.07] sm:p-6"
     >
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">
-            {SOURCE_LABELS[job.source] ?? job.source}
-          </p>
-          <h3
-            id={titleId}
-            className="mt-2 font-display text-2xl leading-tight tracking-[-0.02em] text-ink"
-          >
-            {job.title}
-          </h3>
-          {companyAndLocation && (
-            <p className="mt-1 text-sm text-ink-soft">{companyAndLocation}</p>
-          )}
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <Tag tone={postedDays !== null && postedDays <= 1 ? "solid" : "dark"}>
+          <span suppressHydrationWarning>{age}</span>
+        </Tag>
+        <span className="text-meta text-dk-ink-3">{source}</span>
+      </div>
 
-        {href && (
+      <h3 id={titleId} className="mt-5 break-words text-[1.25rem] leading-[1.25] font-semibold tracking-[-0.01em] text-dk-ink">
+        {href ? (
           <a
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={"Buka lowongan " + job.title + " di tab baru"}
-            className="inline-flex min-h-10 w-fit shrink-0 items-center gap-2 border border-ink px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-ink transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--cobalt)]"
+            className="after:absolute after:inset-0 after:rounded-xs after:content-[''] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-dk-ink focus-visible:after:[outline-style:solid]"
           >
-            Buka lowongan <span aria-hidden="true">↗</span>
+            {title}
+            <span className="sr-only"> (buka di tab baru)</span>
           </a>
+        ) : (
+          title
+        )}
+      </h3>
+      {company && <p className="mt-1 break-words text-body font-light text-dk-ink-2">{company}</p>}
+
+      {description && <p className="mt-4 line-clamp-2 text-meta text-dk-ink-3">{description}</p>}
+
+      <ul className="mt-5 space-y-1.5 text-meta text-dk-ink-2">
+        {location && (
+          <li className="flex items-start gap-2">
+            <Icon name="pin" className="mt-px h-4 w-4 text-dk-ink-3" />
+            <span className="break-words">{location}</span>
+          </li>
+        )}
+        {job.salary_text && (
+          <li className="flex items-start gap-2">
+            <Icon name="wallet" className="mt-px h-4 w-4 text-dk-ink-3" />
+            <span className="break-words">{cleanText(job.salary_text)}</span>
+          </li>
+        )}
+      </ul>
+
+      <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+        <div className="flex flex-wrap gap-1.5">{job.remote && <Tag tone="dark">Remote</Tag>}</div>
+        {href && (
+          <span className="translate-x-[-4px] opacity-60 transition-[opacity,transform] duration-[var(--dur-base)] ease-[var(--ease)] group-hover:translate-x-0 group-hover:opacity-100">
+            <ArrowDot light />
+          </span>
         )}
       </div>
-
-      {description && (
-        <p className="mt-4 max-w-4xl text-sm leading-6 text-ink-soft">
-          {description}
-        </p>
-      )}
-
-      <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-line pt-4 sm:grid-cols-3 lg:grid-cols-5">
-        <Fact label="Sumber" value={SOURCE_LABELS[job.source] ?? job.source} />
-        <Fact label="Mode kerja" value={job.remote ? "Remote" : "Tidak remote"} />
-        <Fact label="Kompensasi" value={job.salary_text ?? "Tidak dicantumkan"} />
-        <Fact label="Diposting" value={postedAt ?? "Tidak dicantumkan"} />
-        <Fact label="Diambil" value={fetchedAt ?? "Tidak diketahui"} />
-      </dl>
     </article>
   );
 }

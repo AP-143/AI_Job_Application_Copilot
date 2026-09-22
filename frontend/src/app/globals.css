@@ -1,33 +1,99 @@
 @import "tailwindcss";
 
+/*
+  Application Desk — studio style (ref: wearebou.com).
+  White paper with soft mint washes, one grotesk family mixing light and bold weights,
+  pill tags, round arrow buttons, and one dark rounded block where the results live.
+  Contrast (WCAG, measured): ink/white 19.8, ink-2/white 7.7 (mint 6.8), ink-3/white 5.3 (mint 4.7),
+  danger/white 5.9, control border 8a8a8a/white 3.5. Dark block: dk-ink 16.6, dk-ink-2 8.0, dk-ink-3 5.9.
+*/
 :root {
-  --paper: #f4f0e8;
-  --paper-deep: #e9e2d6;
-  --ink: #10231f;
-  --ink-muted: #60706a;
-  --line: #d5cec1;
-  --line-strong: #b8b0a2;
-  --surface: #fffdf8;
-  --surface-muted: #ede7dc;
-  --night: #0d211e;
-  --night-raised: #17332e;
-  --copper: #a74d31;
-  --copper-soft: #f1d9d0;
-  --cobalt: #2859a8;
-  --cobalt-soft: #dbe6fa;
-  --success: #3b6b59;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --sunken: #ebebeb;
+  --mint: #e6f5ea;
+  --ink: #0a0a0a;
+  --ink-hover: #262626;
+  --ink-2: #535353;
+  --ink-3: #6b6b6b;
+  --line: #e4e4e4;
+  --line-strong: #8a8a8a;
+  --on-ink: #ffffff;
+  --danger: #c2261d;
+  --danger-soft: #fdeceb;
+
+  --dk: #121716;
+  --dk-raised: #1c2322;
+  --dk-ink: #f5f5f3;
+  --dk-ink-2: #a7aeac;
+  --dk-ink-3: #8d9593;
+  --dk-line: rgb(255 255 255 / 0.12);
+  --dk-danger: #ff8f85;
+
+  --ease: cubic-bezier(0.29, 0.48, 0.5, 0.99);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 200ms;
+  --dur-base: 300ms;
+  --dur-slow: 500ms;
 }
 
 @theme inline {
-  --color-paper: var(--paper);
-  --color-ink: var(--ink);
-  --color-ink-soft: var(--ink-muted);
-  --color-line: var(--line);
-  --color-accent: var(--copper);
-  --color-accent-soft: var(--copper-soft);
+  --color-bg: var(--bg);
   --color-surface: var(--surface);
-  --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-sunken: var(--sunken);
+  --color-mint: var(--mint);
+  --color-ink: var(--ink);
+  --color-ink-hover: var(--ink-hover);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-on-ink: var(--on-ink);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-dk: var(--dk);
+  --color-dk-raised: var(--dk-raised);
+  --color-dk-ink: var(--dk-ink);
+  --color-dk-ink-2: var(--dk-ink-2);
+  --color-dk-ink-3: var(--dk-ink-3);
+  --color-dk-line: var(--dk-line);
+  --color-dk-danger: var(--dk-danger);
+
+  --font-sans: var(--font-host), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: var(--font-host), "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* 6-step scale. Big type is light (300) with bold emphasis; body is 400. */
+  --text-display: 3.5rem;
+  --text-display--line-height: 1.08;
+  --text-display--letter-spacing: -0.025em;
+  --text-title: 2.25rem;
+  --text-title--line-height: 1.12;
+  --text-title--letter-spacing: -0.02em;
+  --text-heading: 1.625rem;
+  --text-heading--line-height: 1.18;
+  --text-heading--letter-spacing: -0.012em;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.5;
+  --text-lead--letter-spacing: -0.003em;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: 0em;
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.4;
+  --text-meta--letter-spacing: 0.005em;
+  --text-tag: 0.6875rem;
+  --text-tag--line-height: 1;
+  --text-tag--letter-spacing: 0.03em;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+
+  --animate-rise: rise var(--dur-slow) var(--ease-out) both;
+  --animate-line: line-in 800ms var(--ease-out) both;
+  --animate-fade: fade var(--dur-base) var(--ease) both;
+  --animate-toast: rise 400ms var(--ease-out) both;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
 }
 
 * {
@@ -35,151 +101,267 @@
 }
 
 html {
-  background: var(--paper);
-  scroll-behavior: smooth;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   min-width: 320px;
-  background:
-    linear-gradient(to right, rgb(16 35 31 / 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(16 35 31 / 0.025) 1px, transparent 1px),
-    var(--paper);
-  background-size: 44px 44px;
+  background: var(--bg);
   color: var(--ink);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
 }
 
-button,
-input,
-textarea {
-  font: inherit;
+@layer base {
+  button:not(:disabled),
+  a,
+  label {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .dark-block :focus-visible,
+  .dark-hero :focus-visible {
+    outline-color: var(--dk-ink);
+  }
+
+  strong,
+  b {
+    font-weight: 700;
+  }
 }
 
-button:not(:disabled),
-a {
-  -webkit-tap-highlight-color: transparent;
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
-::selection {
-  background: var(--copper);
-  color: var(--surface);
+.page {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 1rem;
 }
 
-:focus-visible {
-  outline: 2px solid var(--cobalt);
-  outline-offset: 3px;
+@media (min-width: 640px) {
+  .page {
+    padding-inline: 2rem;
+  }
 }
 
-.app-topbar {
-  background: rgb(244 240 232 / 0.86);
-  backdrop-filter: blur(14px);
+@media (min-width: 1024px) {
+  .page {
+    padding-inline: 3.75rem;
+  }
 }
 
-.hairline-grid {
-  background-image:
-    linear-gradient(to right, rgb(16 35 31 / 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(16 35 31 / 0.06) 1px, transparent 1px);
-  background-size: 32px 32px;
+/* Soft mint wash that sits behind light sections, like daylight through frosted glass. */
+.wash {
+  background:
+    radial-gradient(60% 50% at 15% 0%, rgb(214 240 222 / 0.9), transparent 70%),
+    radial-gradient(50% 45% at 90% 30%, rgb(224 244 236 / 0.8), transparent 70%),
+    var(--bg);
 }
 
-.dossier-stage {
-  min-height: 340px;
-  perspective: 1100px;
-  perspective-origin: 50% 40%;
-}
-
-.dossier-stack {
+/* Dark hero: blurred colour fields drifting slowly, standing in for Bou's video backdrop. */
+.dark-hero {
   position: relative;
-  width: min(100%, 330px);
-  aspect-ratio: 0.76;
-  margin: 0 auto;
-  transform: rotateX(51deg) rotateZ(-34deg) translateY(8px);
-  transform-style: preserve-3d;
+  isolation: isolate;
+  overflow: hidden;
+  background: #0f1312;
+  color: var(--dk-ink);
 }
 
-.dossier-sheet {
+.dark-hero .blob {
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.55;
+  animation: drift var(--drift, 22s) ease-in-out infinite alternate;
+}
+
+.dark-hero::after {
   position: absolute;
   inset: 0;
-  border: 1px solid rgb(16 35 31 / 0.22);
-  background: var(--surface);
-  box-shadow: 14px 16px 0 rgb(16 35 31 / 0.11);
-}
-
-.dossier-sheet::after {
-  position: absolute;
-  inset: 19% 13% auto;
-  height: 1px;
+  z-index: -1;
   content: "";
-  background: rgb(16 35 31 / 0.17);
-  box-shadow: 0 21px 0 rgb(16 35 31 / 0.17), 0 42px 0 rgb(16 35 31 / 0.17),
-    0 63px 0 rgb(16 35 31 / 0.17), 0 84px 0 rgb(16 35 31 / 0.17);
+  background: linear-gradient(180deg, transparent 55%, rgb(10 16 22 / 0.9) 100%);
 }
 
-.dossier-sheet--back {
-  transform: translateZ(-28px) translateX(18px) translateY(14px);
-  background: var(--paper-deep);
+.dark-block {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background:
+    radial-gradient(70% 60% at 50% 0%, rgb(58 74 70 / 0.55), transparent 70%),
+    linear-gradient(180deg, #1a2120 0%, var(--dk) 60%);
+  color: var(--dk-ink);
 }
 
-.dossier-sheet--middle {
-  transform: translateZ(-13px) translateX(8px) translateY(6px);
-  background: #ece6db;
+/* Headline lines slide up from a mask, once per page. */
+.reveal-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
 }
 
-.dossier-sheet--front {
-  transform: translateZ(2px);
+.reveal-line > span {
+  display: block;
+  animation: var(--animate-line);
+  animation-delay: calc(var(--i, 0) * 110ms + 100ms);
 }
 
-.dossier-stamp {
+.stagger > * {
+  animation: var(--animate-rise);
+  animation-delay: calc(min(var(--i, 0), 9) * 45ms);
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--sunken);
+}
+
+.dark-block .skeleton {
+  background: rgb(255 255 255 / 0.07);
+}
+
+.skeleton::after {
   position: absolute;
-  right: 13%;
-  bottom: 14%;
-  display: grid;
-  width: 58px;
-  height: 58px;
-  place-items: center;
-  border: 1px solid var(--copper);
-  color: var(--copper);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  transform: rotate(-8deg);
-}
-
-.dossier-orbit {
-  position: absolute;
-  top: -9%;
-  right: -22%;
-  width: 62%;
-  aspect-ratio: 1;
-  border: 1px solid rgb(182 90 60 / 0.56);
-  border-radius: 999px;
-  transform: translateZ(32px);
-}
-
-.dossier-orbit::before {
-  position: absolute;
-  top: 45%;
-  left: -5px;
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
+  inset: 0;
   content: "";
-  background: var(--copper);
-  box-shadow: 112px 95px 0 var(--cobalt);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.5), transparent);
+  transform: translateX(-100%);
+  animation: var(--animate-shimmer);
 }
 
-.motion-float {
-  animation: dossier-float 7s ease-in-out infinite;
+.dark-block .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
 }
 
-@keyframes dossier-float {
-  0%,
-  100% {
-    transform: rotateX(51deg) rotateZ(-34deg) translateY(8px);
+.progress-track {
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.progress-track::after {
+  position: absolute;
+  inset: 0;
+  width: 35%;
+  content: "";
+  background: var(--ink);
+  animation: progress 1.3s ease-in-out infinite;
+}
+
+.dark-block .progress-track {
+  background: var(--dk-line);
+}
+
+.dark-block .progress-track::after {
+  background: var(--dk-ink);
+}
+
+/* Night desk scene: a slow camera push, a lamp that breathes, dust in the light. */
+.night-camera {
+  transform-origin: 70% 80%;
+  animation: camera-push 28s var(--ease) infinite alternate;
+}
+
+.night-glow {
+  animation: lamp-breathe 7s ease-in-out infinite;
+}
+
+.night-shade {
+  animation: lamp-flicker 11s steps(1) infinite;
+}
+
+.night-mote {
+  opacity: 0;
+  animation: mote var(--dur, 12s) linear infinite;
+}
+
+@keyframes camera-push {
+  from { transform: scale(1); }
+  to { transform: scale(1.07) translate(-1%, -1%); }
+}
+
+@keyframes lamp-breathe {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+@keyframes lamp-flicker {
+  0%, 61%, 63%, 100% { opacity: 1; }
+  62% { opacity: 0.82; }
+}
+
+@keyframes mote {
+  0% { opacity: 0; transform: translate(0, 0); }
+  15% { opacity: 0.7; }
+  85% { opacity: 0.5; }
+  100% { opacity: 0; transform: translate(-40px, -160px); }
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-6%, -4%, 0) scale(1);
   }
-  50% {
-    transform: rotateX(51deg) rotateZ(-31deg) translateY(-5px);
+  to {
+    transform: translate3d(8%, 6%, 0) scale(1.15);
   }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes line-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shimmer {
+  to { transform: translateX(100%); }
+}
+
+@keyframes progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(290%); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -188,7 +370,12 @@ a {
   *::after {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .skeleton::after,
+  .progress-track::after {
+    display: none;
   }
 }
