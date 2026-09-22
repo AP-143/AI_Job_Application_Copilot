@@ -1,28 +1,194 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f7f5f0;
-  --ink: #1c1b19;
-  --ink-soft: #565349;
-  --line: #ded9cc;
-  --accent: #9a3324;
-  --accent-soft: #f1e2dd;
-  --surface: #ffffff;
+  --paper: #f4f0e8;
+  --paper-deep: #e9e2d6;
+  --ink: #10231f;
+  --ink-muted: #60706a;
+  --line: #d5cec1;
+  --line-strong: #b8b0a2;
+  --surface: #fffdf8;
+  --surface-muted: #ede7dc;
+  --night: #0d211e;
+  --night-raised: #17332e;
+  --copper: #a74d31;
+  --copper-soft: #f1d9d0;
+  --cobalt: #2859a8;
+  --cobalt-soft: #dbe6fa;
+  --success: #3b6b59;
 }
 
 @theme inline {
   --color-paper: var(--paper);
   --color-ink: var(--ink);
-  --color-ink-soft: var(--ink-soft);
+  --color-ink-soft: var(--ink-muted);
   --color-line: var(--line);
-  --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
+  --color-accent: var(--copper);
+  --color-accent-soft: var(--copper-soft);
   --color-surface: var(--surface);
   --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
-body {
+* {
+  box-sizing: border-box;
+}
+
+html {
   background: var(--paper);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  background:
+    linear-gradient(to right, rgb(16 35 31 / 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(16 35 31 / 0.025) 1px, transparent 1px),
+    var(--paper);
+  background-size: 44px 44px;
   color: var(--ink);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button:not(:disabled),
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--copper);
+  color: var(--surface);
+}
+
+:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 3px;
+}
+
+.app-topbar {
+  background: rgb(244 240 232 / 0.86);
+  backdrop-filter: blur(14px);
+}
+
+.hairline-grid {
+  background-image:
+    linear-gradient(to right, rgb(16 35 31 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(16 35 31 / 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.dossier-stage {
+  min-height: 340px;
+  perspective: 1100px;
+  perspective-origin: 50% 40%;
+}
+
+.dossier-stack {
+  position: relative;
+  width: min(100%, 330px);
+  aspect-ratio: 0.76;
+  margin: 0 auto;
+  transform: rotateX(51deg) rotateZ(-34deg) translateY(8px);
+  transform-style: preserve-3d;
+}
+
+.dossier-sheet {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgb(16 35 31 / 0.22);
+  background: var(--surface);
+  box-shadow: 14px 16px 0 rgb(16 35 31 / 0.11);
+}
+
+.dossier-sheet::after {
+  position: absolute;
+  inset: 19% 13% auto;
+  height: 1px;
+  content: "";
+  background: rgb(16 35 31 / 0.17);
+  box-shadow: 0 21px 0 rgb(16 35 31 / 0.17), 0 42px 0 rgb(16 35 31 / 0.17),
+    0 63px 0 rgb(16 35 31 / 0.17), 0 84px 0 rgb(16 35 31 / 0.17);
+}
+
+.dossier-sheet--back {
+  transform: translateZ(-28px) translateX(18px) translateY(14px);
+  background: var(--paper-deep);
+}
+
+.dossier-sheet--middle {
+  transform: translateZ(-13px) translateX(8px) translateY(6px);
+  background: #ece6db;
+}
+
+.dossier-sheet--front {
+  transform: translateZ(2px);
+}
+
+.dossier-stamp {
+  position: absolute;
+  right: 13%;
+  bottom: 14%;
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 1px solid var(--copper);
+  color: var(--copper);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  transform: rotate(-8deg);
+}
+
+.dossier-orbit {
+  position: absolute;
+  top: -9%;
+  right: -22%;
+  width: 62%;
+  aspect-ratio: 1;
+  border: 1px solid rgb(182 90 60 / 0.56);
+  border-radius: 999px;
+  transform: translateZ(32px);
+}
+
+.dossier-orbit::before {
+  position: absolute;
+  top: 45%;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  content: "";
+  background: var(--copper);
+  box-shadow: 112px 95px 0 var(--cobalt);
+}
+
+.motion-float {
+  animation: dossier-float 7s ease-in-out infinite;
+}
+
+@keyframes dossier-float {
+  0%,
+  100% {
+    transform: rotateX(51deg) rotateZ(-34deg) translateY(8px);
+  }
+  50% {
+    transform: rotateX(51deg) rotateZ(-31deg) translateY(-5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

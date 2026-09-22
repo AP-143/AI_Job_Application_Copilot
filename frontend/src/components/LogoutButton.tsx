@@ -17,7 +17,7 @@ export default function LogoutButton() {
     <button
       type="button"
       onClick={handleLogout}
-      className="underline underline-offset-4 hover:text-ink"
+      className="min-h-11 border border-line px-3 text-xs font-semibold tracking-[0.08em] text-ink-soft transition-colors hover:border-ink hover:text-ink focus-visible:outline-offset-2"
     >
       Keluar
     </button>
