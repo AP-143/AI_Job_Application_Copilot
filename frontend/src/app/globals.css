@@ -270,12 +270,6 @@ body {
   background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
 }
 
-
-
-
-
-
-
 @keyframes rise {
   from {
     opacity: 0;

@@ -192,7 +192,8 @@ export default function JobSearchPanel({
 
   function applyExample(values: SearchValues) {
     setSeed((prev) => ({ key: (prev?.key ?? 0) + 1, values }));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
   }
 
   const visibleListings = listings.filter((job) => isFresh(job)).sort(byNewest);

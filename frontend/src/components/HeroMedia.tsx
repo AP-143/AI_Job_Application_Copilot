@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 // Files live in public/media (added in Task 11). A missing file falls back to the CSS gradient.
-export const HERO_MEDIA = {
+const HERO_MEDIA = {
   webm: "/media/hero.webm",
   mp4: "/media/hero.mp4",
   poster: "/media/hero-poster.jpg",

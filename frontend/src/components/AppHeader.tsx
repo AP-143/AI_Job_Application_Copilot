@@ -15,6 +15,7 @@ const NAV = [
   { key: "jobs", href: "/jobs", label: "Lowongan" },
 ] as const;
 
+/* Transparent over the dark page hero, solid white once the page scrolls. */
 export default function AppHeader({ active, userEmail }: AppHeaderProps) {
   const scrolled = useScrolled();
 
