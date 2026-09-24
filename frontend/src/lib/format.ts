@@ -47,3 +47,16 @@ export function isFresh(
   if (time === null) return true;
   return now - time <= MAX_LISTING_AGE_DAYS * DAY_MS;
 }
+
+/** Sort comparator: newest `posted_at` (falling back to `fetched_at`) first. Invalid or missing dates sort last. */
+export function byNewest(
+  a: { posted_at?: string | null; fetched_at: string },
+  b: { posted_at?: string | null; fetched_at: string }
+): number {
+  const timeA = toTime(a.posted_at ?? a.fetched_at);
+  const timeB = toTime(b.posted_at ?? b.fetched_at);
+  if (timeA === null && timeB === null) return 0;
+  if (timeA === null) return 1;
+  if (timeB === null) return -1;
+  return timeB - timeA;
+}

@@ -8,7 +8,7 @@ import PageHero from "./PageHero";
 import { Alert, ArrowDot, Button, EmptyState, Skeleton, Spinner, Tag, Toast, buttonClass, displayClass } from "./ui";
 import { ApiError, searchJobs } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
-import { isFresh, timeAgo } from "@/lib/format";
+import { byNewest, isFresh, timeAgo } from "@/lib/format";
 import type { JobListingRow, JobSearchPreferencesRow, JobSearchRequest } from "@/lib/types";
 
 const EXAMPLES: SearchValues[] = [
@@ -195,7 +195,7 @@ export default function JobSearchPanel({
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const visibleListings = listings.filter((job) => isFresh(job));
+  const visibleListings = listings.filter((job) => isFresh(job)).sort(byNewest);
   const count = visibleListings.length;
   const sources = Array.from(new Set(visibleListings.map((job) => sourceName(job.source))));
   const latestFetch = visibleListings.reduce<string | null>(

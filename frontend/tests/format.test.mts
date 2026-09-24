@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ageLabel, daysAgo, isFresh, timeAgo } from "../src/lib/format.ts";
+import { ageLabel, byNewest, daysAgo, isFresh, timeAgo } from "../src/lib/format.ts";
 
 const NOW = Date.parse("2026-09-24T12:00:00Z");
 const hoursBefore = (hours: number) => new Date(NOW - hours * 3_600_000).toISOString();
@@ -34,4 +34,27 @@ test("isFresh keeps the last 30 days and undated listings", () => {
   assert.equal(isFresh({ posted_at: hoursBefore(24 * 31), fetched_at: hoursBefore(1) }, NOW), false);
   assert.equal(isFresh({ posted_at: null, fetched_at: hoursBefore(24 * 31) }, NOW), false);
   assert.equal(isFresh({ posted_at: "garbage", fetched_at: hoursBefore(1) }, NOW), true);
+});
+
+test("byNewest orders newer posted_at first", () => {
+  const older = { posted_at: hoursBefore(48), fetched_at: hoursBefore(1) };
+  const newer = { posted_at: hoursBefore(2), fetched_at: hoursBefore(1) };
+  assert.equal(byNewest(newer, older) < 0, true);
+  assert.equal(byNewest(older, newer) > 0, true);
+  assert.deepEqual([older, newer].sort(byNewest), [newer, older]);
+});
+
+test("byNewest falls back to fetched_at when posted_at is missing", () => {
+  const noPosted = { fetched_at: hoursBefore(1) };
+  const postedOlder = { posted_at: hoursBefore(48), fetched_at: hoursBefore(72) };
+  assert.deepEqual([postedOlder, noPosted].sort(byNewest), [noPosted, postedOlder]);
+});
+
+test("byNewest sorts invalid or missing dates last", () => {
+  const dated = { posted_at: hoursBefore(24), fetched_at: hoursBefore(24) };
+  const invalid = { posted_at: "not a date", fetched_at: "also not a date" };
+  const missing = { posted_at: null, fetched_at: undefined as unknown as string };
+  const result = [invalid, dated, missing].sort(byNewest);
+  assert.equal(result[0], dated);
+  assert.deepEqual(new Set(result.slice(1)), new Set([invalid, missing]));
 });
