@@ -1,5 +1,6 @@
 import type { JobListingRow } from "@/lib/types";
 import { ageLabel, daysAgo } from "@/lib/format";
+import { cleanText } from "@/lib/text";
 import { ArrowDot, Tag } from "./ui";
 
 export const SOURCE_LABELS: Record<string, string> = {
@@ -22,42 +23,6 @@ function safeHref(url: string): string | null {
   } catch {
     return null;
   }
-}
-
-const ENTITY: Record<string, string> = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": "\"",
-  "&#39;": "'",
-  "&#x27;": "'",
-  "&nbsp;": " ",
-};
-
-// Windows-1252 code points for bytes 0x80-0x9F, used to undo UTF-8 text that was decoded as cp1252.
-const CP1252 = "€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ";
-
-const MOJIBAKE_RUN = new RegExp(`[Â-ô][\u0080-¿${CP1252}]+`, "g");
-
-function decodeRun(run: string): string {
-  const bytes = Array.from(run, (ch) => {
-    const code = ch.charCodeAt(0);
-    return code <= 0xff ? code : 0x80 + CP1252.indexOf(ch);
-  });
-  try {
-    return new TextDecoder("utf-8", { fatal: true }).decode(new Uint8Array(bytes));
-  } catch {
-    return run;
-  }
-}
-
-function repairMojibake(value: string): string {
-  return value.replace(MOJIBAKE_RUN, decodeRun);
-}
-
-// Source feeds sometimes ship HTML entities or double-encoded UTF-8; clean for display only.
-export function cleanText(value: string): string {
-  return repairMojibake(value).replace(/&(?:amp|lt|gt|quot|nbsp|#39|#x27);/g, (match) => ENTITY[match] ?? match);
 }
 
 const SHELL = "group flex h-full flex-col rounded-xs border border-line bg-white/[0.04] p-5 sm:p-6";
