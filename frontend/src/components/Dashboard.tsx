@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import AppHeader from "./AppHeader";
 import CvUploader from "./CvUploader";
 import PageHero from "./PageHero";
 import ProfileReview from "./ProfileReview";
 import { Alert, ArrowDot, Button, Spinner, StatGrid, Tag, Toast, buttonClass, displayClass } from "./ui";
 import { createClient } from "@/lib/supabase/client";
-import { displayName, profileStats, sectionAnchor, sectionForWarning } from "@/lib/profile";
+import { displayName, groupWarnings, profileStats, sectionAnchor, sectionForWarning } from "@/lib/profile";
 import type { CandidateProfileRow, ProfileExtractionResult } from "@/lib/types";
 
 function rowToResult(row: CandidateProfileRow): ProfileExtractionResult {
@@ -36,6 +36,8 @@ export default function Dashboard({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  // Bumped by "Batal" while an upload is in flight, so its late result can be told apart from a fresh one.
+  const uploadToken = useRef(0);
 
   async function trySave(extractedResult: ProfileExtractionResult) {
     setSaving(true);
@@ -56,10 +58,16 @@ export default function Dashboard({
     if (!error) setToast("Profil tersimpan ke akunmu.");
   }
 
-  function handleExtracted(newResult: ProfileExtractionResult) {
-    setResult(newResult);
-    setShowUploader(false);
-    void trySave(newResult);
+  // Captures the current upload token so a result that arrives after "Batal" (which bumps the
+  // token) can be told apart from one that arrived before it, and discarded.
+  function makeOnExtracted() {
+    const startToken = uploadToken.current;
+    return (newResult: ProfileExtractionResult) => {
+      if (uploadToken.current !== startToken) return;
+      setResult(newResult);
+      setShowUploader(false);
+      void trySave(newResult);
+    };
   }
 
   const isReplacing = Boolean(result && showUploader);
@@ -110,7 +118,8 @@ export default function Dashboard({
                 className="group mt-6 inline-flex min-h-11 items-center gap-3 text-body text-ink"
               >
                 <span>
-                  <strong className="font-bold">{result.warnings.length} bagian</strong> perlu kamu cek
+                  <strong className="font-bold">{Object.keys(groupWarnings(result.warnings)).length} bagian</strong>{" "}
+                  perlu kamu cek
                 </span>
                 <ArrowDot className="h-7 w-7" />
               </a>
@@ -154,11 +163,17 @@ export default function Dashboard({
               : "Kami baca pengalaman, keahlian, dan proyekmu, lalu menyusunnya jadi profil untuk mencari lowongan."}
           </p>
           <div className="mt-10 max-w-5xl">
-            <CvUploader onExtracted={handleExtracted} />
+            <CvUploader onExtracted={makeOnExtracted()} />
           </div>
           {isReplacing && (
             <div className="mt-8">
-              <Button variant="arrow" onClick={() => setShowUploader(false)}>
+              <Button
+                variant="arrow"
+                onClick={() => {
+                  uploadToken.current += 1;
+                  setShowUploader(false);
+                }}
+              >
                 Batal, tetap pakai profil sekarang
               </Button>
             </div>
