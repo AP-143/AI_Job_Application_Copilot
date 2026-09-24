@@ -1,13 +1,6 @@
-"use client";
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ButtonHTMLAttributes,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+export { Toast } from "./Toast";
 
 /* ---------- Icons: one set, 1.5 stroke, 24px grid ---------- */
 
@@ -26,6 +19,7 @@ const ICON_PATHS = {
   pin: "M12 21s-6.75-5.6-6.75-11.25a6.75 6.75 0 0113.5 0C18.75 15.4 12 21 12 21zM12 12.25a2.5 2.5 0 100-5 2.5 2.5 0 000 5z",
   clock: "M12 7.5V12l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
   wallet: "M4.75 7.25h14.5v11.5H4.75zM4.75 7.25l10.5-3v3M15.5 13h1.5",
+  plus: "M12 5v14M5 12h14",
 } as const;
 
 export type IconName = keyof typeof ICON_PATHS;
@@ -56,14 +50,32 @@ export function Spinner({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-/* Round arrow badge used after link text ("Cari lowongan  (→)"). */
-export function ArrowDot({ light = false, className = "" }: { light?: boolean; className?: string }) {
+/* ---------- Type ---------- */
+
+/* The one big headline per page: light weight with bold keywords (Bou's "only hires" pattern). */
+export const displayClass =
+  "text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.06] font-light tracking-[-0.03em] text-ink [&_strong]:font-bold";
+
+/* Section headings on the landing page and similar. */
+export const titleClass =
+  "text-[clamp(2rem,4vw,3.25rem)] leading-[1.1] font-light tracking-[-0.025em] text-ink [&_strong]:font-bold";
+
+/* Round arrow badge after link text. `inverse` flips it inside a filled ink button. Follows the section tone. */
+export function ArrowDot({
+  inverse = false,
+  light = false,
+  className = "",
+}: {
+  inverse?: boolean;
+  /** LEGACY: removed in Task 10. */
+  light?: boolean;
+  className?: string;
+}) {
+  const tone = light ? "bg-dk-ink text-dk" : inverse ? "bg-on-ink text-ink" : "bg-ink text-on-ink";
   return (
     <span
       aria-hidden="true"
-      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full transition-transform duration-[var(--dur-base)] ease-[var(--ease)] group-hover:translate-x-1 ${
-        light ? "bg-dk-ink text-dk" : "bg-ink text-on-ink"
-      } ${className}`}
+      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full transition-transform duration-[var(--dur-base)] ease-[var(--ease)] group-hover:translate-x-1 ${tone} ${className}`}
     >
       <Icon name="arrow" className="h-3.5 w-3.5" />
     </span>
@@ -125,7 +137,7 @@ export function Button({
 export const inputClass =
   "block min-h-12 w-full rounded-sm border border-line-strong bg-surface px-4 py-3 text-body text-ink " +
   "placeholder:text-ink-3 transition-[border-color,box-shadow] duration-[var(--dur-fast)] ease-[var(--ease)] " +
-  "hover:border-ink focus-visible:border-ink focus-visible:shadow-[0_0_0_4px_rgb(10_10_10/0.08)] focus-visible:outline-none " +
+  "hover:border-ink focus-visible:border-ink focus-visible:shadow-[0_0_0_4px_var(--ring)] focus-visible:outline-none " +
   "aria-[invalid=true]:border-danger aria-[invalid=true]:shadow-[0_0_0_4px_rgb(194_38_29/0.1)] " +
   "disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-3";
 
@@ -199,10 +211,12 @@ export function Tag({
   tone = "light",
 }: {
   children: ReactNode;
-  tone?: "light" | "dark" | "solid";
+  /** "dark" and "solid" are LEGACY, removed in Task 10. */
+  tone?: "light" | "outline" | "dark" | "solid";
 }) {
   const tones = {
     light: "bg-sunken text-ink",
+    outline: "border border-line-strong text-ink",
     dark: "bg-white/10 text-dk-ink",
     solid: "bg-dk-ink text-dk",
   };
@@ -220,6 +234,60 @@ export function Chip({ children }: { children: ReactNode }) {
     <span className="inline-flex min-h-7 items-center rounded-full bg-sunken px-3 text-meta font-medium text-ink">
       {children}
     </span>
+  );
+}
+
+/* ---------- Stat grid (hairline cells, value above label) ---------- */
+
+export function StatGrid({
+  items,
+  className = "",
+  columns = "grid-cols-2 lg:grid-cols-4",
+  compact = false,
+}: {
+  items: ReadonlyArray<{ value: ReactNode; label: string }>;
+  className?: string;
+  columns?: string;
+  compact?: boolean;
+}) {
+  return (
+    <dl className={`line-grid ${columns} ${className}`}>
+      {items.map((item) => (
+        <div key={item.label} className={`flex flex-col-reverse gap-2 ${compact ? "p-3" : "p-5 sm:p-6"}`}>
+          <dt className="text-meta text-ink-2">{item.label}</dt>
+          <dd
+            className={`tabular leading-none font-light tracking-[-0.02em] text-ink ${
+              compact ? "text-heading" : "text-[clamp(2rem,3.4vw,3rem)]"
+            }`}
+          >
+            {item.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/* ---------- Accordion (native details, works without JS) ---------- */
+
+export function Accordion({ items }: { items: ReadonlyArray<{ question: string; answer: ReactNode }> }) {
+  return (
+    <div className="border-t border-line">
+      {items.map((item) => (
+        <details key={item.question} className="group border-b border-line">
+          <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-6 py-5 text-lead text-ink [&::-webkit-details-marker]:hidden">
+            {item.question}
+            <span
+              aria-hidden="true"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line-strong transition-transform duration-[var(--dur-base)] ease-[var(--ease)] group-open:rotate-45"
+            >
+              <Icon name="plus" className="h-4 w-4" />
+            </span>
+          </summary>
+          <div className="max-w-[40rem] pr-14 pb-6 text-body text-ink-2">{item.answer}</div>
+        </details>
+      ))}
+    </div>
   );
 }
 
@@ -287,57 +355,3 @@ export function Alert({
   );
 }
 
-/* ---------- Toast ---------- */
-
-export function Toast({
-  message,
-  onDone,
-  duration = 5000,
-}: {
-  message: string | null;
-  onDone: () => void;
-  duration?: number;
-}) {
-  const [paused, setPaused] = useState(false);
-  const doneRef = useRef(onDone);
-
-  useEffect(() => {
-    doneRef.current = onDone;
-  }, [onDone]);
-
-  useEffect(() => {
-    if (!message || paused) return;
-    const timer = window.setTimeout(() => doneRef.current(), duration);
-    return () => window.clearTimeout(timer);
-  }, [message, paused, duration]);
-
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex justify-center sm:bottom-8"
-    >
-      {message && (
-        <div
-          key={message}
-          onPointerEnter={() => setPaused(true)}
-          onPointerLeave={() => setPaused(false)}
-          onFocus={() => setPaused(true)}
-          onBlur={() => setPaused(false)}
-          className="animate-toast pointer-events-auto flex items-center gap-3 rounded-full bg-ink py-1.5 pr-1.5 pl-5 text-on-ink shadow-[0_20px_50px_-15px_rgb(10_10_10/0.45)]"
-        >
-          <Icon name="check" className="h-4 w-4" />
-          <p className="text-body">{message}</p>
-          <button
-            type="button"
-            onClick={onDone}
-            aria-label="Tutup notifikasi"
-            className="grid h-11 w-11 place-items-center rounded-full bg-white/10 transition-colors hover:bg-white/20 focus-visible:outline-on-ink"
-          >
-            <Icon name="close" className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
