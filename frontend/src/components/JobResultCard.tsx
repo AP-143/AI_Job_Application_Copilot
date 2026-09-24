@@ -35,11 +35,7 @@ const ENTITY: Record<string, string> = {
 };
 
 // Windows-1252 code points for bytes 0x80-0x9F, used to undo UTF-8 text that was decoded as cp1252.
-const CP1252 =
-  "€‚ƒ„…†‡ˆ" +
-  "‰Š‹ŒŽ‘’“" +
-  "”•–—˜™š›" +
-  "œžŸ";
+const CP1252 = "€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ";
 
 const MOJIBAKE_RUN = new RegExp(`[Â-ô][\u0080-¿${CP1252}]+`, "g");
 
