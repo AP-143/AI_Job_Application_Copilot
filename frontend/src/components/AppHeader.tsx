@@ -1,29 +1,33 @@
+"use client";
+
 import Link from "next/link";
 import LogoutButton from "./LogoutButton";
+import Wordmark from "./Wordmark";
+import { useScrolled } from "./useScrolled";
 
 type AppHeaderProps = {
   active: "profile" | "jobs";
   userEmail: string;
+  /** LEGACY: removed in Task 10, when every page uses the overlay header. */
+  overlay?: boolean;
 };
-
-export function Wordmark({ light = false }: { light?: boolean }) {
-  return (
-    <span className={`flex items-baseline gap-[3px] text-[1.5rem] leading-none tracking-[-0.045em] ${light ? "text-dk-ink" : "text-ink"}`}>
-      <span className="font-bold">desk</span>
-      <span aria-hidden="true" className={`inline-block h-[7px] w-[7px] rounded-full ${light ? "bg-dk-ink" : "bg-ink"}`} />
-      <span className="sr-only">Application Desk</span>
-    </span>
-  );
-}
 
 const NAV = [
   { key: "profile", href: "/", label: "Profil" },
   { key: "jobs", href: "/jobs", label: "Lowongan" },
 ] as const;
 
-export default function AppHeader({ active, userEmail }: AppHeaderProps) {
+/* Transparent over the dark page hero, solid white once the page scrolls. */
+export default function AppHeader({ active, userEmail, overlay = false }: AppHeaderProps) {
+  const scrolled = useScrolled();
+  const solid = !overlay || scrolled;
+
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl">
+    <header
+      className={`${overlay ? "fixed inset-x-0" : "sticky"} top-0 z-40 border-b transition-[background-color,border-color] duration-[var(--dur-base)] ease-[var(--ease)] ${
+        solid ? "tone-light border-line bg-bg/90 backdrop-blur-xl" : "tone-dark border-transparent bg-transparent"
+      }`}
+    >
       <div className="page grid min-h-[4.5rem] grid-cols-[auto_1fr_auto] items-center gap-3">
         <Link href="/" aria-label="Application Desk, ke halaman profil" className="rounded-xs">
           <Wordmark />
