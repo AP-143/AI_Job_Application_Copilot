@@ -68,7 +68,7 @@ export default function Dashboard({
 
   return (
     <main className="min-h-[100svh]">
-      <AppHeader active="profile" userEmail={userEmail} overlay />
+      <AppHeader active="profile" userEmail={userEmail} />
 
       {hasProfile && result && profile ? (
         <>

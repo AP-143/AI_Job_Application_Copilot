@@ -8,8 +8,6 @@ import { useScrolled } from "./useScrolled";
 type AppHeaderProps = {
   active: "profile" | "jobs";
   userEmail: string;
-  /** LEGACY: removed in Task 10, when every page uses the overlay header. */
-  overlay?: boolean;
 };
 
 const NAV = [
@@ -17,15 +15,13 @@ const NAV = [
   { key: "jobs", href: "/jobs", label: "Lowongan" },
 ] as const;
 
-/* Transparent over the dark page hero, solid white once the page scrolls. */
-export default function AppHeader({ active, userEmail, overlay = false }: AppHeaderProps) {
+export default function AppHeader({ active, userEmail }: AppHeaderProps) {
   const scrolled = useScrolled();
-  const solid = !overlay || scrolled;
 
   return (
     <header
-      className={`${overlay ? "fixed inset-x-0" : "sticky"} top-0 z-40 border-b transition-[background-color,border-color] duration-[var(--dur-base)] ease-[var(--ease)] ${
-        solid ? "tone-light border-line bg-bg/90 backdrop-blur-xl" : "tone-dark border-transparent bg-transparent"
+      className={`fixed inset-x-0 top-0 z-40 border-b transition-[background-color,border-color] duration-[var(--dur-base)] ease-[var(--ease)] ${
+        scrolled ? "tone-light border-line bg-bg/90 backdrop-blur-xl" : "tone-dark border-transparent bg-transparent"
       }`}
     >
       <div className="page grid min-h-[4.5rem] grid-cols-[auto_1fr_auto] items-center gap-3">

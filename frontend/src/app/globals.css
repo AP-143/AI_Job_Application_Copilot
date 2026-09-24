@@ -54,16 +54,6 @@
   --dur-slow: 500ms;
 }
 
-/* LEGACY: removed in Task 10 */
-:root {
-  --dk: #121716;
-  --dk-raised: #1c2322;
-  --dk-ink: #f5f5f3;
-  --dk-ink-2: #a7aeac;
-  --dk-ink-3: #8d9593;
-  --dk-line: rgb(255 255 255 / 0.12);
-  --dk-danger: #ff8f85;
-}
 
 @theme inline {
   --color-bg: var(--bg);
@@ -116,17 +106,6 @@
   --animate-shimmer: shimmer 1.6s ease-in-out infinite;
 }
 
-/* LEGACY: removed in Task 10 */
-@theme inline {
-  --color-dk: var(--dk);
-  --color-dk-raised: var(--dk-raised);
-  --color-dk-ink: var(--dk-ink);
-  --color-dk-ink-2: var(--dk-ink-2);
-  --color-dk-ink-3: var(--dk-ink-3);
-  --color-dk-line: var(--dk-line);
-  --color-dk-danger: var(--dk-danger);
-  --animate-line: line-in 800ms var(--ease-out) both;
-}
 
 * {
   box-sizing: border-box;
@@ -169,13 +148,6 @@ body {
   }
 }
 
-/* LEGACY: removed in Task 10 */
-@layer base {
-  .dark-block :focus-visible,
-  .dark-hero :focus-visible {
-    outline-color: var(--dk-ink);
-  }
-}
 
 @layer components {
   /* Text picks up the remapped ink inside each tone. Layered so text-* utilities still win. */
@@ -262,7 +234,7 @@ body {
     var(--bg);
 }
 
-/* Rounded dark block that holds the job results. Redefined without dk tokens in Task 10. */
+/* Rounded dark block that holds the job results. Use together with .tone-dark. */
 .dark-block {
   position: relative;
   isolation: isolate;
@@ -270,8 +242,7 @@ body {
   border-radius: var(--radius-sm);
   background:
     radial-gradient(70% 60% at 50% 0%, rgb(58 74 70 / 0.55), transparent 70%),
-    linear-gradient(180deg, #1a2120 0%, var(--dk) 60%);
-  color: var(--dk-ink);
+    linear-gradient(180deg, #1a2120 0%, #121716 60%);
 }
 
 .stagger > * {
@@ -299,143 +270,11 @@ body {
   background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
 }
 
-/* LEGACY: removed in Task 10 */
-.dark-hero {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background: #0f1312;
-  color: var(--dk-ink);
-}
 
-/* LEGACY: removed in Task 10 */
-.dark-hero .blob {
-  position: absolute;
-  z-index: -1;
-  border-radius: 9999px;
-  filter: blur(90px);
-  opacity: 0.55;
-  animation: drift var(--drift, 22s) ease-in-out infinite alternate;
-}
 
-/* LEGACY: removed in Task 10 */
-.dark-hero::after {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  content: "";
-  background: linear-gradient(180deg, transparent 55%, rgb(10 16 22 / 0.9) 100%);
-}
 
-/* LEGACY: removed in Task 10 */
-.reveal-line {
-  display: block;
-  overflow: hidden;
-  padding-bottom: 0.08em;
-  margin-bottom: -0.08em;
-}
 
-/* LEGACY: removed in Task 10 */
-.reveal-line > span {
-  display: block;
-  animation: var(--animate-line);
-  animation-delay: calc(var(--i, 0) * 110ms + 100ms);
-}
 
-/* LEGACY: removed in Task 10 */
-.dark-block .skeleton {
-  background: rgb(255 255 255 / 0.07);
-}
-
-/* LEGACY: removed in Task 10 */
-.dark-block .skeleton::after {
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
-}
-
-/* LEGACY: removed in Task 10 */
-.progress-track {
-  position: relative;
-  height: 2px;
-  overflow: hidden;
-  border-radius: 2px;
-  background: var(--line);
-}
-
-/* LEGACY: removed in Task 10 */
-.progress-track::after {
-  position: absolute;
-  inset: 0;
-  width: 35%;
-  content: "";
-  background: var(--ink);
-  animation: progress 1.3s ease-in-out infinite;
-}
-
-/* LEGACY: removed in Task 10 */
-.night-camera {
-  transform-origin: 70% 80%;
-  animation: camera-push 28s var(--ease) infinite alternate;
-}
-
-/* LEGACY: removed in Task 10 */
-.night-glow {
-  animation: lamp-breathe 7s ease-in-out infinite;
-}
-
-/* LEGACY: removed in Task 10 */
-.night-shade {
-  animation: lamp-flicker 11s steps(1) infinite;
-}
-
-/* LEGACY: removed in Task 10 */
-.night-mote {
-  opacity: 0;
-  animation: mote var(--dur, 12s) linear infinite;
-}
-
-/* LEGACY: removed in Task 10 */
-@keyframes camera-push {
-  from { transform: scale(1); }
-  to { transform: scale(1.07) translate(-1%, -1%); }
-}
-
-/* LEGACY: removed in Task 10 */
-@keyframes lamp-breathe {
-  0%, 100% { opacity: 0.85; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.04); }
-}
-
-/* LEGACY: removed in Task 10 */
-@keyframes lamp-flicker {
-  0%, 61%, 63%, 100% { opacity: 1; }
-  62% { opacity: 0.82; }
-}
-
-/* LEGACY: removed in Task 10 */
-@keyframes mote {
-  0% { opacity: 0; transform: translate(0, 0); }
-  15% { opacity: 0.7; }
-  85% { opacity: 0.5; }
-  100% { opacity: 0; transform: translate(-40px, -160px); }
-}
-
-/* LEGACY: removed in Task 10 */
-@keyframes drift {
-  from { transform: translate3d(-6%, -4%, 0) scale(1); }
-  to { transform: translate3d(8%, 6%, 0) scale(1.15); }
-}
-
-/* LEGACY: removed in Task 10 */
-@keyframes line-in {
-  from { opacity: 0; transform: translateY(100%); }
-  to { opacity: 1; transform: none; }
-}
-
-/* LEGACY: removed in Task 10 */
-@keyframes progress {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(290%); }
-}
 
 @keyframes rise {
   from {

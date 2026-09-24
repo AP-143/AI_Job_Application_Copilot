@@ -36,7 +36,7 @@ export default async function JobsPage() {
 
   return (
     <main className="min-h-[100svh]">
-      <AppHeader active="jobs" userEmail={user.email ?? ""} overlay />
+      <AppHeader active="jobs" userEmail={user.email ?? ""} />
       <JobSearchPanel
         userId={user.id}
         hasProfile={Boolean(profile)}

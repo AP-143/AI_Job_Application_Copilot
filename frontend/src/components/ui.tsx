@@ -61,21 +61,13 @@ export const titleClass =
   "text-[clamp(2rem,4vw,3.25rem)] leading-[1.1] font-light tracking-[-0.025em] text-ink [&_strong]:font-bold";
 
 /* Round arrow badge after link text. `inverse` flips it inside a filled ink button. Follows the section tone. */
-export function ArrowDot({
-  inverse = false,
-  light = false,
-  className = "",
-}: {
-  inverse?: boolean;
-  /** LEGACY: removed in Task 10. */
-  light?: boolean;
-  className?: string;
-}) {
-  const tone = light ? "bg-dk-ink text-dk" : inverse ? "bg-on-ink text-ink" : "bg-ink text-on-ink";
+export function ArrowDot({ inverse = false, className = "" }: { inverse?: boolean; className?: string }) {
   return (
     <span
       aria-hidden="true"
-      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full transition-transform duration-[var(--dur-base)] ease-[var(--ease)] group-hover:translate-x-1 ${tone} ${className}`}
+      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full transition-transform duration-[var(--dur-base)] ease-[var(--ease)] group-hover:translate-x-1 ${
+        inverse ? "bg-on-ink text-ink" : "bg-ink text-on-ink"
+      } ${className}`}
     >
       <Icon name="arrow" className="h-3.5 w-3.5" />
     </span>
@@ -84,7 +76,7 @@ export function ArrowDot({
 
 /* ---------- Button ---------- */
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "link" | "light" | "arrow" | "arrow-light";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "link" | "arrow";
 
 const BUTTON_BASE =
   "group relative inline-flex min-h-11 select-none items-center justify-center gap-2 rounded-full text-body font-medium " +
@@ -96,9 +88,7 @@ const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   secondary: "border border-ink bg-transparent px-6 text-ink hover:bg-ink hover:text-on-ink",
   ghost: "px-4 text-ink-2 hover:bg-sunken hover:text-ink",
   link: "min-h-0 rounded-none px-0 text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink active:scale-100",
-  light: "bg-dk-ink px-6 text-dk hover:bg-white",
   arrow: "gap-3 pr-1 pl-0 text-ink hover:font-semibold",
-  "arrow-light": "gap-3 pr-1 pl-0 text-dk-ink hover:font-semibold",
 };
 
 export function buttonClass(variant: ButtonVariant = "primary", extra = "") {
@@ -117,7 +107,7 @@ export function Button({
   loading?: boolean;
   loadingText?: string;
 }) {
-  const isArrow = variant === "arrow" || variant === "arrow-light";
+  const isArrow = variant === "arrow";
   return (
     <button
       type="button"
@@ -127,7 +117,7 @@ export function Button({
     >
       {loading && !isArrow && <Spinner />}
       {loading && loadingText ? loadingText : children}
-      {isArrow && (loading ? <Spinner className="h-7 w-7 p-1.5" /> : <ArrowDot light={variant === "arrow-light"} />)}
+      {isArrow && (loading ? <Spinner className="h-7 w-7 p-1.5" /> : <ArrowDot />)}
     </button>
   );
 }
@@ -206,19 +196,10 @@ export function Panel({
 
 /* ---------- Tag (pill) ---------- */
 
-export function Tag({
-  children,
-  tone = "light",
-}: {
-  children: ReactNode;
-  /** "dark" and "solid" are LEGACY, removed in Task 10. */
-  tone?: "light" | "outline" | "dark" | "solid";
-}) {
+export function Tag({ children, tone = "light" }: { children: ReactNode; tone?: "light" | "outline" }) {
   const tones = {
     light: "bg-sunken text-ink",
     outline: "border border-line-strong text-ink",
-    dark: "bg-white/10 text-dk-ink",
-    solid: "bg-dk-ink text-dk",
   };
   return (
     <span
@@ -303,17 +284,15 @@ export function EmptyState({
   title,
   children,
   action,
-  dark = false,
 }: {
   title: ReactNode;
   children: ReactNode;
   action?: ReactNode;
-  dark?: boolean;
 }) {
   return (
     <div className="mx-auto flex max-w-[34rem] flex-col items-center px-4 py-16 text-center sm:py-24">
-      <h3 className={`text-heading font-light ${dark ? "text-dk-ink" : "text-ink"} [&_strong]:font-bold`}>{title}</h3>
-      <div className={`mt-3 text-body ${dark ? "text-dk-ink-2" : "text-ink-2"}`}>{children}</div>
+      <h3 className="text-heading font-light text-ink [&_strong]:font-bold">{title}</h3>
+      <div className="mt-3 text-body text-ink-2">{children}</div>
       {action && <div className="mt-8">{action}</div>}
     </div>
   );

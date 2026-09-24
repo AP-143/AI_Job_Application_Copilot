@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
+import Landing from "@/components/landing/Landing";
 import AppHeader from "@/components/AppHeader";
 import Dashboard from "@/components/Dashboard";
 import JobSearchPanel from "@/components/JobSearchPanel";
 import type { CandidateProfileRow, JobListingRow } from "@/lib/types";
 
-// Temporary dev-only harness for screenshotting UI states with mock data. Delete after the redesign.
+// Dev-only harness for checking UI states with mock data. Returns 404 in production.
 
 const now = Date.now();
 const daysAgo = (d: number) => new Date(now - d * 86400000).toISOString();
@@ -69,6 +70,7 @@ export default async function DesignPreview({ searchParams }: { searchParams: Pr
   if (process.env.NODE_ENV === "production") notFound();
   const { state = "jobs-empty" } = await searchParams;
 
+  if (state === "landing") return <Landing />;
   if (state === "profile-empty") return <Dashboard userId="u" userEmail="preview@contoh.id" initialProfile={null} />;
   if (state === "profile-overflow") return <Dashboard userId="u" userEmail="preview@contoh.id" initialProfile={profile} />;
 
@@ -81,7 +83,7 @@ export default async function DesignPreview({ searchParams }: { searchParams: Pr
 
   return (
     <main className="min-h-[100svh]">
-      <AppHeader active="jobs" userEmail="preview@contoh.id" overlay />
+      <AppHeader active="jobs" userEmail="preview@contoh.id" />
       <JobSearchPanel userId="u" initialPreferences={null} {...jobs} />
     </main>
   );
