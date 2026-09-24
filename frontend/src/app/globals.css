@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
 /*
-  Application Desk — studio style (ref: wearebou.com).
-  White paper with soft mint washes, one grotesk family mixing light and bold weights,
-  pill tags, round arrow buttons, and one dark rounded block where the results live.
-  Contrast (WCAG, measured): ink/white 19.8, ink-2/white 7.7 (mint 6.8), ink-3/white 5.3 (mint 4.7),
-  danger/white 5.9, control border 8a8a8a/white 3.5. Dark block: dk-ink 16.6, dk-ink-2 8.0, dk-ink-3 5.9.
+  Application Desk — premium studio style (ref: wearebou.com and Bou & Co).
+  One token set, two tones. Light is the default; `.tone-dark` remaps the same tokens for the
+  charcoal-teal sections and `.tone-light` restores them inside a dark section.
+  Light contrast (WCAG): ink/white 19.8, ink-2/white 7.7 (mint 6.8), ink-3/white 5.3, danger/white 5.9,
+  control border 8a8a8a/white 3.5.
+  Dark contrast on the lightest gradient stop #2c3a38: ink 10.9, ink-2 5.3, ink-3 4.6, danger 5.4,
+  line-strong 3.8.
 */
-:root {
+:root,
+.tone-light {
   --bg: #ffffff;
   --surface: #ffffff;
   --sunken: #ebebeb;
@@ -21,7 +24,38 @@
   --on-ink: #ffffff;
   --danger: #c2261d;
   --danger-soft: #fdeceb;
+  --ring: rgb(10 10 10 / 0.08);
+}
 
+.tone-dark {
+  --bg: #121716;
+  --surface: #1a2120;
+  --sunken: rgb(255 255 255 / 0.1);
+  --mint: rgb(230 245 234 / 0.1);
+  --ink: #f5f5f3;
+  --ink-hover: #ffffff;
+  --ink-2: #a7aeac;
+  --ink-3: #9aa2a0;
+  --line: rgb(255 255 255 / 0.12);
+  --line-strong: rgb(255 255 255 / 0.45);
+  --on-ink: #0e1312;
+  --danger: #ff8f85;
+  --danger-soft: rgb(255 143 133 / 0.12);
+  --ring: rgb(255 255 255 / 0.18);
+}
+
+:root {
+  --dark-gradient: linear-gradient(180deg, #0e1312 0%, #1b2423 55%, #2c3a38 100%);
+
+  --ease: cubic-bezier(0.29, 0.48, 0.5, 0.99);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 200ms;
+  --dur-base: 300ms;
+  --dur-slow: 500ms;
+}
+
+/* LEGACY: removed in Task 10 */
+:root {
   --dk: #121716;
   --dk-raised: #1c2322;
   --dk-ink: #f5f5f3;
@@ -29,12 +63,6 @@
   --dk-ink-3: #8d9593;
   --dk-line: rgb(255 255 255 / 0.12);
   --dk-danger: #ff8f85;
-
-  --ease: cubic-bezier(0.29, 0.48, 0.5, 0.99);
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur-fast: 200ms;
-  --dur-base: 300ms;
-  --dur-slow: 500ms;
 }
 
 @theme inline {
@@ -51,13 +79,6 @@
   --color-on-ink: var(--on-ink);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
-  --color-dk: var(--dk);
-  --color-dk-raised: var(--dk-raised);
-  --color-dk-ink: var(--dk-ink);
-  --color-dk-ink-2: var(--dk-ink-2);
-  --color-dk-ink-3: var(--dk-ink-3);
-  --color-dk-line: var(--dk-line);
-  --color-dk-danger: var(--dk-danger);
 
   --font-sans: var(--font-host), "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-display: var(--font-host), "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -90,10 +111,21 @@
   --radius-md: 12px;
 
   --animate-rise: rise var(--dur-slow) var(--ease-out) both;
-  --animate-line: line-in 800ms var(--ease-out) both;
   --animate-fade: fade var(--dur-base) var(--ease) both;
   --animate-toast: rise 400ms var(--ease-out) both;
   --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+}
+
+/* LEGACY: removed in Task 10 */
+@theme inline {
+  --color-dk: var(--dk);
+  --color-dk-raised: var(--dk-raised);
+  --color-dk-ink: var(--dk-ink);
+  --color-dk-ink-2: var(--dk-ink-2);
+  --color-dk-ink-3: var(--dk-ink-3);
+  --color-dk-line: var(--dk-line);
+  --color-dk-danger: var(--dk-danger);
+  --animate-line: line-in 800ms var(--ease-out) both;
 }
 
 * {
@@ -131,14 +163,71 @@ body {
     outline-offset: 3px;
   }
 
+  strong,
+  b {
+    font-weight: 700;
+  }
+}
+
+/* LEGACY: removed in Task 10 */
+@layer base {
   .dark-block :focus-visible,
   .dark-hero :focus-visible {
     outline-color: var(--dk-ink);
   }
+}
 
-  strong,
-  b {
-    font-weight: 700;
+@layer components {
+  /* Text picks up the remapped ink inside each tone. Layered so text-* utilities still win. */
+  .tone-dark,
+  .tone-light {
+    color: var(--ink);
+  }
+
+  .surface-dark {
+    background: var(--dark-gradient);
+  }
+
+  /* Hairline grid: cells share 1px borders with no gaps, like Bou's logo wall and stat rows. */
+  .line-grid {
+    display: grid;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+
+  .line-grid > * {
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Full-bleed hero backdrop: video or still frame under a charcoal-teal scrim.
+     The gradient underneath shows while media loads or when a file is missing. */
+  .hero-media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background-color: #121716;
+    background-image: var(--dark-gradient);
+    background-position: center;
+    background-size: cover;
+  }
+
+  .hero-media video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-media::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background:
+      linear-gradient(180deg, rgb(14 19 18 / 0.62) 0%, rgb(14 19 18 / 0.45) 40%, rgb(14 19 18 / 0.88) 100%),
+      rgb(44 58 56 / 0.2);
   }
 }
 
@@ -165,7 +254,7 @@ body {
   }
 }
 
-/* Soft mint wash that sits behind light sections, like daylight through frosted glass. */
+/* Soft mint wash behind light sections, like daylight through frosted glass. */
 .wash {
   background:
     radial-gradient(60% 50% at 15% 0%, rgb(214 240 222 / 0.9), transparent 70%),
@@ -173,32 +262,7 @@ body {
     var(--bg);
 }
 
-/* Dark hero: blurred colour fields drifting slowly, standing in for Bou's video backdrop. */
-.dark-hero {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background: #0f1312;
-  color: var(--dk-ink);
-}
-
-.dark-hero .blob {
-  position: absolute;
-  z-index: -1;
-  border-radius: 9999px;
-  filter: blur(90px);
-  opacity: 0.55;
-  animation: drift var(--drift, 22s) ease-in-out infinite alternate;
-}
-
-.dark-hero::after {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  content: "";
-  background: linear-gradient(180deg, transparent 55%, rgb(10 16 22 / 0.9) 100%);
-}
-
+/* Rounded dark block that holds the job results. Redefined without dk tokens in Task 10. */
 .dark-block {
   position: relative;
   isolation: isolate;
@@ -208,20 +272,6 @@ body {
     radial-gradient(70% 60% at 50% 0%, rgb(58 74 70 / 0.55), transparent 70%),
     linear-gradient(180deg, #1a2120 0%, var(--dk) 60%);
   color: var(--dk-ink);
-}
-
-/* Headline lines slide up from a mask, once per page. */
-.reveal-line {
-  display: block;
-  overflow: hidden;
-  padding-bottom: 0.08em;
-  margin-bottom: -0.08em;
-}
-
-.reveal-line > span {
-  display: block;
-  animation: var(--animate-line);
-  animation-delay: calc(var(--i, 0) * 110ms + 100ms);
 }
 
 .stagger > * {
@@ -236,10 +286,6 @@ body {
   background: var(--sunken);
 }
 
-.dark-block .skeleton {
-  background: rgb(255 255 255 / 0.07);
-}
-
 .skeleton::after {
   position: absolute;
   inset: 0;
@@ -249,10 +295,64 @@ body {
   animation: var(--animate-shimmer);
 }
 
+.tone-dark .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
+}
+
+/* LEGACY: removed in Task 10 */
+.dark-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #0f1312;
+  color: var(--dk-ink);
+}
+
+/* LEGACY: removed in Task 10 */
+.dark-hero .blob {
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.55;
+  animation: drift var(--drift, 22s) ease-in-out infinite alternate;
+}
+
+/* LEGACY: removed in Task 10 */
+.dark-hero::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background: linear-gradient(180deg, transparent 55%, rgb(10 16 22 / 0.9) 100%);
+}
+
+/* LEGACY: removed in Task 10 */
+.reveal-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+/* LEGACY: removed in Task 10 */
+.reveal-line > span {
+  display: block;
+  animation: var(--animate-line);
+  animation-delay: calc(var(--i, 0) * 110ms + 100ms);
+}
+
+/* LEGACY: removed in Task 10 */
+.dark-block .skeleton {
+  background: rgb(255 255 255 / 0.07);
+}
+
+/* LEGACY: removed in Task 10 */
 .dark-block .skeleton::after {
   background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
 }
 
+/* LEGACY: removed in Task 10 */
 .progress-track {
   position: relative;
   height: 2px;
@@ -261,6 +361,7 @@ body {
   background: var(--line);
 }
 
+/* LEGACY: removed in Task 10 */
 .progress-track::after {
   position: absolute;
   inset: 0;
@@ -270,48 +371,47 @@ body {
   animation: progress 1.3s ease-in-out infinite;
 }
 
-.dark-block .progress-track {
-  background: var(--dk-line);
-}
-
-.dark-block .progress-track::after {
-  background: var(--dk-ink);
-}
-
-/* Night desk scene: a slow camera push, a lamp that breathes, dust in the light. */
+/* LEGACY: removed in Task 10 */
 .night-camera {
   transform-origin: 70% 80%;
   animation: camera-push 28s var(--ease) infinite alternate;
 }
 
+/* LEGACY: removed in Task 10 */
 .night-glow {
   animation: lamp-breathe 7s ease-in-out infinite;
 }
 
+/* LEGACY: removed in Task 10 */
 .night-shade {
   animation: lamp-flicker 11s steps(1) infinite;
 }
 
+/* LEGACY: removed in Task 10 */
 .night-mote {
   opacity: 0;
   animation: mote var(--dur, 12s) linear infinite;
 }
 
+/* LEGACY: removed in Task 10 */
 @keyframes camera-push {
   from { transform: scale(1); }
   to { transform: scale(1.07) translate(-1%, -1%); }
 }
 
+/* LEGACY: removed in Task 10 */
 @keyframes lamp-breathe {
   0%, 100% { opacity: 0.85; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.04); }
 }
 
+/* LEGACY: removed in Task 10 */
 @keyframes lamp-flicker {
   0%, 61%, 63%, 100% { opacity: 1; }
   62% { opacity: 0.82; }
 }
 
+/* LEGACY: removed in Task 10 */
 @keyframes mote {
   0% { opacity: 0; transform: translate(0, 0); }
   15% { opacity: 0.7; }
@@ -319,30 +419,28 @@ body {
   100% { opacity: 0; transform: translate(-40px, -160px); }
 }
 
+/* LEGACY: removed in Task 10 */
 @keyframes drift {
-  from {
-    transform: translate3d(-6%, -4%, 0) scale(1);
-  }
-  to {
-    transform: translate3d(8%, 6%, 0) scale(1.15);
-  }
+  from { transform: translate3d(-6%, -4%, 0) scale(1); }
+  to { transform: translate3d(8%, 6%, 0) scale(1.15); }
+}
+
+/* LEGACY: removed in Task 10 */
+@keyframes line-in {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: none; }
+}
+
+/* LEGACY: removed in Task 10 */
+@keyframes progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(290%); }
 }
 
 @keyframes rise {
   from {
     opacity: 0;
     transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes line-in {
-  from {
-    opacity: 0;
-    transform: translateY(100%);
   }
   to {
     opacity: 1;
@@ -359,11 +457,6 @@ body {
   to { transform: translateX(100%); }
 }
 
-@keyframes progress {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(290%); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -374,8 +467,7 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .skeleton::after,
-  .progress-track::after {
+  .skeleton::after {
     display: none;
   }
 }
