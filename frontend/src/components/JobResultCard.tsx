@@ -1,5 +1,6 @@
 import type { JobListingRow } from "@/lib/types";
-import { ArrowDot, Icon, Tag } from "./ui";
+import { ageLabel, daysAgo } from "@/lib/format";
+import { ArrowDot, Tag } from "./ui";
 
 export const SOURCE_LABELS: Record<string, string> = {
   remoteok: "RemoteOK",
@@ -9,7 +10,10 @@ export const SOURCE_LABELS: Record<string, string> = {
   gemini_specific: "Gemini (target)",
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+export function sourceName(raw: string): string {
+  const key = Object.keys(SOURCE_LABELS).find((k) => raw.toLowerCase().includes(k));
+  return key ? SOURCE_LABELS[key] : raw;
+}
 
 function safeHref(url: string): string | null {
   try {
@@ -31,9 +35,13 @@ const ENTITY: Record<string, string> = {
 };
 
 // Windows-1252 code points for bytes 0x80-0x9F, used to undo UTF-8 text that was decoded as cp1252.
-const CP1252 = "€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ";
+const CP1252 =
+  "€‚ƒ„…†‡ˆ" +
+  "‰Š‹ŒŽ‘’“" +
+  "”•–—˜™š›" +
+  "œžŸ";
 
-const MOJIBAKE_RUN = new RegExp(`[\u00c2-\u00f4][\u0080-\u00bf${CP1252}]+`, "g");
+const MOJIBAKE_RUN = new RegExp(`[Â-ô][\u0080-¿${CP1252}]+`, "g");
 
 function decodeRun(run: string): string {
   const bytes = Array.from(run, (ch) => {
@@ -56,29 +64,16 @@ export function cleanText(value: string): string {
   return repairMojibake(value).replace(/&(?:amp|lt|gt|quot|nbsp|#39|#x27);/g, (match) => ENTITY[match] ?? match);
 }
 
-function daysAgo(value: string | null | undefined): number | null {
-  if (!value) return null;
-  const time = new Date(value).getTime();
-  if (Number.isNaN(time)) return null;
-  return Math.max(0, Math.floor((Date.now() - time) / DAY_MS));
-}
+const SHELL = "group flex h-full flex-col rounded-xs border border-line bg-white/[0.04] p-5 sm:p-6";
 
-function ageLabel(days: number): string {
-  if (days === 0) return "Hari ini";
-  if (days === 1) return "Kemarin";
-  return `${days} hari lalu`;
-}
-
+/* Glass card in the dark results block. The whole card is one link to the original posting. */
 export default function JobResultCard({ job }: { job: JobListingRow }) {
   const href = safeHref(job.source_url);
   const postedDays = daysAgo(job.posted_at);
   const fetchedDays = daysAgo(job.fetched_at);
   const title = cleanText(job.title);
-  const description = job.description ? cleanText(job.description).replace(/s+/g, " ").trim() : null;
-  const titleId = "job-title-" + job.id;
   const company = job.company ? cleanText(job.company) : null;
-  const location = job.location ? cleanText(job.location) : null;
-  const source = SOURCE_LABELS[job.source] ?? job.source;
+  const meta = [job.location, job.salary_text].filter(Boolean).map((value) => cleanText(value as string));
   const age =
     postedDays !== null
       ? ageLabel(postedDays)
@@ -86,60 +81,37 @@ export default function JobResultCard({ job }: { job: JobListingRow }) {
         ? `Ditemukan ${ageLabel(fetchedDays).toLowerCase()}`
         : "Tanpa tanggal";
 
-  return (
-    <article
-      aria-labelledby={titleId}
-      className="group relative flex h-full flex-col rounded-xs border border-dk-line bg-white/[0.035] p-5 transition-[background-color,border-color,transform] duration-[var(--dur-base)] ease-[var(--ease)] hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/[0.07] sm:p-6"
-    >
-      <div className="flex items-center justify-between gap-3">
-        <Tag tone={postedDays !== null && postedDays <= 1 ? "solid" : "dark"}>
+  const body = (
+    <>
+      <div>
+        <Tag tone={postedDays !== null && postedDays <= 1 ? "light" : "outline"}>
           <span suppressHydrationWarning>{age}</span>
         </Tag>
-        <span className="text-meta text-dk-ink-3">{source}</span>
       </div>
-
-      <h3 id={titleId} className="mt-5 break-words text-[1.25rem] leading-[1.25] font-semibold tracking-[-0.01em] text-dk-ink">
-        {href ? (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="after:absolute after:inset-0 after:rounded-xs after:content-[''] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-dk-ink focus-visible:after:[outline-style:solid]"
-          >
-            {title}
-            <span className="sr-only"> (buka di tab baru)</span>
-          </a>
-        ) : (
-          title
-        )}
-      </h3>
-      {company && <p className="mt-1 break-words text-body font-light text-dk-ink-2">{company}</p>}
-
-      {description && <p className="mt-4 line-clamp-2 text-meta text-dk-ink-3">{description}</p>}
-
-      <ul className="mt-5 space-y-1.5 text-meta text-dk-ink-2">
-        {location && (
-          <li className="flex items-start gap-2">
-            <Icon name="pin" className="mt-px h-4 w-4 text-dk-ink-3" />
-            <span className="break-words">{location}</span>
-          </li>
-        )}
-        {job.salary_text && (
-          <li className="flex items-start gap-2">
-            <Icon name="wallet" className="mt-px h-4 w-4 text-dk-ink-3" />
-            <span className="break-words">{cleanText(job.salary_text)}</span>
-          </li>
-        )}
-      </ul>
-
-      <div className="mt-auto flex items-end justify-between gap-3 pt-5">
-        <div className="flex flex-wrap gap-1.5">{job.remote && <Tag tone="dark">Remote</Tag>}</div>
-        {href && (
-          <span className="translate-x-[-4px] opacity-60 transition-[opacity,transform] duration-[var(--dur-base)] ease-[var(--ease)] group-hover:translate-x-0 group-hover:opacity-100">
-            <ArrowDot light />
-          </span>
-        )}
+      <h3 className="mt-5 break-words text-body leading-[1.35] font-bold text-ink">{title}</h3>
+      {company && <p className="mt-1 break-words text-body font-light text-ink-2">{company}</p>}
+      {meta.length > 0 && <p className="mt-4 break-words text-meta text-ink-2">{meta.join(" · ")}</p>}
+      <div className="mt-auto flex items-end justify-between gap-3 pt-6">
+        <div className="flex flex-wrap gap-1.5">
+          {job.remote && <Tag>Remote</Tag>}
+          <Tag tone="outline">{sourceName(job.source)}</Tag>
+        </div>
+        {href && <ArrowDot className="h-8 w-8 opacity-70 transition-opacity group-hover:opacity-100" />}
       </div>
-    </article>
+    </>
+  );
+
+  if (!href) return <article className={SHELL}>{body}</article>;
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${SHELL} transition-[border-color,background-color] duration-[var(--dur-base)] ease-[var(--ease)] hover:border-line-strong hover:bg-white/[0.07]`}
+    >
+      {body}
+      <span className="sr-only"> (buka di tab baru)</span>
+    </a>
   );
 }

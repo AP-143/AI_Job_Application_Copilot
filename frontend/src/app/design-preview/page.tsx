@@ -81,10 +81,8 @@ export default async function DesignPreview({ searchParams }: { searchParams: Pr
 
   return (
     <main className="min-h-[100svh]">
-      <AppHeader active="jobs" userEmail="preview@contoh.id" />
-      <div className="pt-12">
-        <JobSearchPanel userId="u" initialPreferences={null} {...jobs} />
-      </div>
+      <AppHeader active="jobs" userEmail="preview@contoh.id" overlay />
+      <JobSearchPanel userId="u" initialPreferences={null} {...jobs} />
     </main>
   );
 }
