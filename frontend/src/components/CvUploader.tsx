@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, extractProfile } from "@/lib/api";
 import type { ProfileExtractionResult } from "@/lib/types";
-import { Alert, Icon, Skeleton } from "./ui";
+import { Alert, Icon, Spinner, Tag } from "./ui";
 
 const ACCEPTED = [".pdf", ".docx", ".txt"];
 
@@ -24,47 +24,7 @@ function uploadErrorMessage(err: unknown): string {
   return "CV belum bisa diproses. Coba unggah lagi.";
 }
 
-const BLOBS = [
-  { c: "#6f8577", s: "70%", x: "-15%", y: "-30%", d: "18s" },
-  { c: "#41566a", s: "60%", x: "55%", y: "10%", d: "24s" },
-  { c: "#8a9a8c", s: "45%", x: "20%", y: "55%", d: "16s" },
-];
-
-function Backdrop() {
-  return (
-    <>
-      {BLOBS.map((b, i) => (
-        <span
-          key={i}
-          aria-hidden="true"
-          className="blob"
-          style={{ background: b.c, width: b.s, aspectRatio: "1", left: b.x, top: b.y, "--drift": b.d } as CSSProperties}
-        />
-      ))}
-    </>
-  );
-}
-
-function ProfileSkeleton() {
-  return (
-    <div aria-hidden="true" className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-12">
-      <Skeleton className="h-8 w-40" />
-      <div className="space-y-8">
-        <div className="space-y-2.5">
-          <Skeleton className="h-5 w-full" />
-          <Skeleton className="h-5 w-11/12" />
-          <Skeleton className="h-5 w-3/4" />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {[16, 20, 12, 24, 14, 18, 22, 10].map((w, i) => (
-            <Skeleton key={i} className="h-6 rounded-full" style={{ width: `${w * 4}px` }} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
+/* Upload zone that sits inside the dark page hero. Colours come from the section tone. */
 export default function CvUploader({ onExtracted }: CvUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -107,25 +67,21 @@ export default function CvUploader({ onExtracted }: CvUploaderProps) {
 
   if (isLoading) {
     return (
-      <div aria-busy="true">
-        <div role="status" className="dark-hero grid min-h-80 place-items-center rounded-sm px-6 py-14 text-center sm:min-h-[26rem]">
-          <Backdrop />
-          <div className="w-full max-w-md">
-            <p className="text-heading font-light text-dk-ink">
-              Membaca <strong className="font-bold">CV kamu</strong>
-            </p>
-            <p className="mt-2 truncate text-meta text-dk-ink-2" title={fileName ?? undefined}>
-              {fileName} · <span className="tabular">{elapsed} dtk</span>
-            </p>
-            <div className="mx-auto mt-6 h-0.5 w-48 overflow-hidden rounded-full bg-white/15">
-              <div className="h-full w-1/3 animate-[progress_1.3s_ease-in-out_infinite] rounded-full bg-dk-ink" />
-            </div>
-            <p className="mt-6 text-meta text-dk-ink-2">
-              Kami sedang menyusun pengalaman, keahlian, dan proyek dari dokumen ini. Biarkan halaman ini tetap terbuka.
-            </p>
-          </div>
+      <div
+        role="status"
+        aria-busy="true"
+        className="grid min-h-72 place-items-center rounded-sm border border-line px-6 py-14 text-center sm:min-h-80"
+      >
+        <div className="w-full max-w-md">
+          <Spinner className="mx-auto h-6 w-6 text-ink" />
+          <p className="mt-6 text-heading font-light text-ink">
+            Membaca <strong className="font-bold">CV kamu</strong>…
+          </p>
+          <p className="mt-2 truncate text-meta text-ink-2" title={fileName ?? undefined}>
+            {fileName} · <span className="tabular">{elapsed} dtk</span>
+          </p>
+          <p className="mt-6 text-meta text-ink-2">Biarkan halaman ini tetap terbuka sampai profil selesai disusun.</p>
         </div>
-        <ProfileSkeleton />
       </div>
     );
   }
@@ -151,11 +107,10 @@ export default function CvUploader({ onExtracted }: CvUploaderProps) {
           const file = event.dataTransfer.files?.[0];
           if (file) void handleFile(file);
         }}
-        className={`dark-hero group grid min-h-80 cursor-pointer place-items-center rounded-sm px-6 py-14 text-center transition-[transform,box-shadow] duration-[var(--dur-slow)] ease-[var(--ease)] focus-within:shadow-[0_0_0_3px_#fff,0_0_0_5px_var(--ink)] sm:min-h-[26rem] ${
-          isDragging ? "scale-[1.015] shadow-[0_0_0_3px_#fff,0_0_0_5px_var(--ink)]" : "hover:scale-[1.005]"
+        className={`group grid min-h-72 cursor-pointer place-items-center rounded-sm border px-6 py-14 text-center transition-[transform,border-color,background-color] duration-[var(--dur-slow)] ease-[var(--ease)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-4 has-[:focus-visible]:outline-ink sm:min-h-80 ${
+          isDragging ? "scale-[1.01] border-ink bg-sunken" : "border-line-strong hover:border-ink"
         }`}
       >
-        <Backdrop />
         <input
           id="cv-upload"
           type="file"
@@ -172,31 +127,29 @@ export default function CvUploader({ onExtracted }: CvUploaderProps) {
         <span className="flex flex-col items-center">
           <span
             aria-hidden="true"
-            className={`grid h-16 w-16 place-items-center rounded-full border border-white/25 bg-white/10 text-dk-ink backdrop-blur-md transition-transform duration-[var(--dur-slow)] ease-[var(--ease-out)] ${
-              isDragging ? "-translate-y-2 scale-110" : "group-hover:-translate-y-1"
+            className={`grid h-14 w-14 place-items-center rounded-full border border-line-strong text-ink transition-transform duration-[var(--dur-slow)] ease-[var(--ease-out)] ${
+              isDragging ? "-translate-y-1.5" : "group-hover:-translate-y-1"
             }`}
           >
             <Icon name={isDragging ? "upload" : "file"} className="h-6 w-6" />
           </span>
-          <span className="mt-6 block text-[clamp(1.75rem,3.4vw,2.75rem)] leading-[1.08] font-light tracking-[-0.025em] text-dk-ink">
+          <span className="mt-6 block text-[clamp(1.5rem,3vw,2.25rem)] leading-[1.1] font-light tracking-[-0.02em] text-ink">
             {isDragging ? (
               <>
                 Lepaskan untuk <strong className="font-bold">mengunggah</strong>.
               </>
             ) : (
               <>
-                Taruh <strong className="font-bold">CV</strong> di sini.
+                Tarik CV ke sini, atau{" "}
+                <strong className="font-bold underline decoration-line-strong underline-offset-[6px]">pilih file</strong>.
               </>
             )}
           </span>
-          <span className="mt-3 block text-body text-dk-ink-2">
-            {isDragging ? "Kami langsung mulai membacanya." : "Atau klik untuk memilih file dari perangkat kamu."}
-          </span>
-          <span id="upload-support" className="mt-8 inline-flex gap-1.5 rounded-full border border-white/20 p-1">
+          <span id="upload-support" className="mt-6 flex gap-1.5">
             {["PDF", "DOCX", "TXT"].map((ext) => (
-              <span key={ext} className="inline-flex min-h-6 items-center rounded-full bg-white/12 px-2.5 text-tag font-bold text-dk-ink">
+              <Tag key={ext} tone="outline">
                 {ext}
-              </span>
+              </Tag>
             ))}
           </span>
         </span>
