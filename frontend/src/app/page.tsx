@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Dashboard from "@/components/Dashboard";
+import Landing from "@/components/landing/Landing";
 import type { CandidateProfileRow } from "@/lib/types";
 
 export default async function Home() {
@@ -11,7 +11,7 @@ export default async function Home() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    return <Landing />;
   }
 
   const { data: profileRow } = await supabase
