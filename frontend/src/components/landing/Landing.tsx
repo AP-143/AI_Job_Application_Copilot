@@ -1,39 +1,39 @@
 import Link from "next/link";
 import Wordmark from "@/components/Wordmark";
 import { HeroVideo } from "@/components/HeroMedia";
-import { Accordion, ArrowDot, StatGrid, buttonClass, displayClass, titleClass } from "@/components/ui";
+import { Accordion, ArrowDot, StatGrid, buttonClass, titleClass } from "@/components/ui";
 import HowItWorks from "./HowItWorks";
 import LandingHeader from "./LandingHeader";
 import { FACTS, FAQ, SOURCES } from "./content";
 
 const startButton = buttonClass("primary", "min-h-12 gap-3 pr-2");
 
+const HERO_VIDEO_URL =
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4";
+
 export default function Landing() {
   const year = new Date().getFullYear();
 
   return (
-    <div className="min-h-[100svh]">
-      <LandingHeader />
-
+    <div className="min-h-[100svh] font-body">
       <main>
-        <section className="tone-dark relative isolate flex min-h-[90svh] flex-col justify-center overflow-hidden text-center">
-          <HeroVideo />
-          <div className="page flex flex-col items-center pt-[7.5rem] pb-20">
-            <h1 className={`${displayClass} animate-rise max-w-[18ch]`}>
-              Dari <strong>CV</strong> ke <strong>lowongan yang cocok</strong>, dalam satu meja kerja.
+        <section className="tone-dark tone-hero relative isolate flex min-h-[100svh] flex-col overflow-hidden">
+          <HeroVideo src={HERO_VIDEO_URL} bare />
+          <LandingHeader />
+          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 py-[90px] text-center">
+            <h1 className="animate-fade-rise max-w-7xl font-serif text-5xl leading-[0.95] font-normal tracking-[-2.46px] text-ink sm:text-7xl md:text-8xl [&_em]:text-ink-2 [&_em]:not-italic">
+              Dari <em>CV</em> ke lowongan yang cocok, <em>dalam satu meja kerja.</em>
             </h1>
-            <p className="mt-6 max-w-[34rem] text-lead text-ink">
-              Unggah CV sekali. Kami susun profilmu, lalu cari lowongan dari 4 sumber sekaligus.
+            <p className="animate-fade-rise-delay mt-8 max-w-2xl text-base leading-relaxed text-ink-2 sm:text-lg">
+              Unggah CV sekali. Kami susun profilmu, lalu cari lowongan dari 4 sumber sekaligus. Keputusan melamar
+              tetap di tangan kamu.
             </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:gap-8">
-              <Link href="/login?mode=signup" className={startButton}>
-                Mulai
-                <ArrowDot inverse className="h-8 w-8" />
-              </Link>
-              <a href="#cara-kerja" className={buttonClass("link")}>
-                Lihat cara kerja
-              </a>
-            </div>
+            <Link
+              href="/login?mode=signup"
+              className={buttonClass("glass", "animate-fade-rise-delay-2 mt-12 cursor-pointer px-14 py-5 text-base")}
+            >
+              Mulai
+            </Link>
           </div>
         </section>
 
@@ -47,7 +47,7 @@ export default function Landing() {
 
         <HowItWorks />
 
-        <section aria-labelledby="sources-heading" className="page py-24 sm:py-32">
+        <section id="sumber" aria-labelledby="sources-heading" className="page py-24 sm:py-32">
           <h2 id="sources-heading" className={`${titleClass} mx-auto max-w-[20ch] text-center`}>
             Lowongan dari <strong>4 sumber</strong> sekaligus.
           </h2>

@@ -76,7 +76,7 @@ export function ArrowDot({ inverse = false, className = "" }: { inverse?: boolea
 
 /* ---------- Button ---------- */
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "link" | "arrow";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "link" | "arrow" | "glass";
 
 const BUTTON_BASE =
   "group relative inline-flex min-h-11 select-none items-center justify-center gap-2 rounded-full text-body font-medium " +
@@ -89,6 +89,8 @@ const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   ghost: "px-4 text-ink-2 hover:bg-sunken hover:text-ink",
   link: "min-h-0 rounded-none px-0 text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink active:scale-100",
   arrow: "gap-3 pr-1 pl-0 text-ink hover:font-semibold",
+  // No padding here: callers set it, so sizes don't fight in the cascade.
+  glass: "liquid-glass font-normal text-ink hover:scale-[1.03]",
 };
 
 export function buttonClass(variant: ButtonVariant = "primary", extra = "") {

@@ -1,38 +1,34 @@
-"use client";
-
 import Link from "next/link";
 import Wordmark from "@/components/Wordmark";
-import { useScrolled } from "@/components/useScrolled";
 import { buttonClass } from "@/components/ui";
 
-const anchor =
-  "hidden min-h-11 items-center rounded-full px-4 text-body text-ink-2 transition-colors duration-[var(--dur-fast)] hover:text-ink sm:inline-flex";
+const LINKS = [
+  { href: "#cara-kerja", label: "Cara kerja" },
+  { href: "#sumber", label: "Sumber" },
+  { href: "#faq", label: "FAQ" },
+] as const;
 
-/* Transparent over the hero video, solid white once the page scrolls. */
+const link = "text-sm text-ink-2 transition-colors hover:text-ink";
+
 export default function LandingHeader() {
-  const scrolled = useScrolled();
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-40 border-b transition-[background-color,border-color] duration-[var(--dur-base)] ease-[var(--ease)] ${
-        scrolled ? "tone-light border-line bg-bg/90 backdrop-blur-xl" : "tone-dark border-transparent bg-transparent"
-      }`}
-    >
-      <div className="page flex min-h-[4.5rem] items-center justify-between gap-4">
-        <Link href="/" aria-label="Application Desk, ke beranda" className="rounded-xs">
-          <Wordmark />
-        </Link>
-        <nav aria-label="Navigasi beranda" className="flex items-center gap-1 sm:gap-2">
-          <a href="#cara-kerja" className={anchor}>
-            Cara kerja
+    <header className="relative z-10 mx-auto flex w-full max-w-7xl flex-row items-center justify-between px-8 py-6">
+      <Link href="/" aria-label="Application Desk, ke beranda" className="rounded-xs">
+        <Wordmark serif />
+      </Link>
+      <nav aria-label="Navigasi beranda" className="hidden items-center gap-8 md:flex">
+        <a href="#" aria-current="page" className="text-sm text-ink">
+          Beranda
+        </a>
+        {LINKS.map((item) => (
+          <a key={item.href} href={item.href} className={link}>
+            {item.label}
           </a>
-          <a href="#faq" className={anchor}>
-            FAQ
-          </a>
-          <Link href="/login" className={buttonClass("primary")}>
-            Masuk
-          </Link>
-        </nav>
-      </div>
+        ))}
+      </nav>
+      <Link href="/login" className={buttonClass("glass", "min-h-0 px-6 py-2.5 text-sm")}>
+        Masuk
+      </Link>
     </header>
   );
 }
