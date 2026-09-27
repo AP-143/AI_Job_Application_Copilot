@@ -1,55 +1,56 @@
 # Job Application Copilot
 
-Web app buat bantu cari kerja: upload CV, profil otomatis tersusun, lalu cari
-lowongan dari 4 sumber sekaligus. Keputusan melamar tetap di tangan user
-(human-in-the-loop).
+A web app that turns your CV into a structured profile and searches job
+listings from four sources at once. You stay in control: the app never
+applies on your behalf.
 
 > Status: work in progress.
 
 ![Landing](docs/screenshots/landing.png)
 
-## Fitur
+## Features
 
-- **Profile Extractor** — CV (PDF/DOCX/TXT) diekstrak jadi profil terstruktur
-  pakai Gemini structured output lewat pipeline LangGraph.
-- **Auth + simpan profil** — login email/password (Supabase Auth), profil
-  tersimpan per user dengan RLS.
-- **Job search** — RemoteOK, Himalayas, Adzuna, dan Gemini grounded search
-  dijalankan paralel, lalu di-merge dan di-dedupe.
+- **Profile extraction**: upload a CV (PDF, DOCX, or TXT) and get a
+  structured profile, built with Gemini structured output in a LangGraph
+  pipeline.
+- **Auth and saved profiles**: email/password sign-in with Supabase Auth.
+  Each profile is stored per user behind row-level security.
+- **Job search**: queries RemoteOK, Himalayas, Adzuna, and Gemini grounded
+  search in parallel, then merges and deduplicates the results.
 
-## Screenshot
+## Screenshots
 
-| Profil | Lowongan |
+| Profile | Job search |
 |---|---|
 | ![Dashboard](docs/screenshots/dashboard.png) | ![Jobs](docs/screenshots/jobs.png) |
 
 ![Login](docs/screenshots/login.png)
 
-## Stack
+## Tech stack
 
 Next.js 16 (App Router, TypeScript, Tailwind v4) · FastAPI · LangGraph ·
-Gemini API · Supabase (Auth + Postgres)
+Gemini API · Supabase (Auth and Postgres)
 
-## Menjalankan
+## Running locally
 
 ```bash
 # backend
 cd backend
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env          # isi GEMINI_API_KEY, Supabase, Adzuna
+cp .env.example .env          # set GEMINI_API_KEY, Supabase, Adzuna keys
 uvicorn app.main:app --reload --port 8000
 
 # frontend
 cd frontend
-cp .env.local.example .env.local   # isi NEXT_PUBLIC_SUPABASE_URL/ANON_KEY
+cp .env.local.example .env.local   # set NEXT_PUBLIC_SUPABASE_URL and ANON_KEY
 npm install && npm run dev
 ```
 
-Supabase: jalankan `backend/supabase/*.sql` di SQL Editor, dan matikan
-"Confirm email" kalau ingin signup langsung login.
+Supabase: run `backend/supabase/*.sql` in the SQL Editor. Turn off
+"Confirm email" if you want sign-up to log users in right away.
 
 ## Roadmap
 
-Validasi lowongan · matching + skor kecocokan · CV tailored & cover letter ·
-tracker lamaran.
+Job validation · match scoring · tailored CV and cover letter ·
+application tracker.
