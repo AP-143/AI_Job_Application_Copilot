@@ -1,88 +1,55 @@
 # Job Application Copilot
 
-Web app buat bantu proses cari kerja luar negeri — dari cari lowongan sampai
-siapin dokumen apply (CV tailored, cover letter, form answer draft). User
-tetap yang submit lamaran secara manual (human-in-the-loop).
+Web app buat bantu cari kerja: upload CV, profil otomatis tersusun, lalu cari
+lowongan dari 4 sumber sekaligus. Keputusan melamar tetap di tangan user
+(human-in-the-loop).
 
-## Status
+> Status: work in progress.
 
-**Profile Extractor** — upload CV (PDF/DOCX/TXT) → diekstrak jadi data
-terstruktur (kontak, summary, skills, experience, education, projects,
-certifications, languages) pakai Gemini structured output, dijalankan lewat
-pipeline LangGraph kecil (`parse → extract → validate`).
+![Landing](docs/screenshots/landing.png)
 
-**Auth + simpan profil** — login/daftar pakai email+password (Supabase
-Auth). Tiap ekstraksi sukses otomatis ke-upsert ke `candidate_profiles`
-(RLS scoped ke user). User yang sudah punya profil tersimpan langsung
-lihat itu pas buka app lagi, dengan tombol "Upload CV baru" buat replace.
+## Fitur
 
-**Job search** — cari lowongan lintas sumber (RemoteOK, Himalayas, Adzuna,
-Gemini grounded search) lewat pipeline LangGraph (fetch paralel → merge →
-dedupe), dipanggil dari halaman `/jobs` dengan form preferensi (role,
-lokasi, remote-only, dst). Listing lama auto-hide.
+- **Profile Extractor** — CV (PDF/DOCX/TXT) diekstrak jadi profil terstruktur
+  pakai Gemini structured output lewat pipeline LangGraph.
+- **Auth + simpan profil** — login email/password (Supabase Auth), profil
+  tersimpan per user dengan RLS.
+- **Job search** — RemoteOK, Himalayas, Adzuna, dan Gemini grounded search
+  dijalankan paralel, lalu di-merge dan di-dedupe.
 
-Belum dikerjakan: validasi/enrichment lowongan, matching, generate CV
-tailored & cover letter, tracker.
+## Screenshot
 
-## Struktur
+| Profil | Lowongan |
+|---|---|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Jobs](docs/screenshots/jobs.png) |
 
-```
-frontend/   Next.js (App Router, TypeScript, Tailwind v4)
-backend/    FastAPI + LangGraph orchestrator, dipanggil Gemini API
-```
+![Login](docs/screenshots/login.png)
 
-## Menjalankan backend
+## Stack
+
+Next.js 16 (App Router, TypeScript, Tailwind v4) · FastAPI · LangGraph ·
+Gemini API · Supabase (Auth + Postgres)
+
+## Menjalankan
 
 ```bash
+# backend
 cd backend
-python3 -m venv venv && source venv/bin/activate
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env   # isi GEMINI_API_KEY, dst.
+cp .env.example .env          # isi GEMINI_API_KEY, Supabase, Adzuna
 uvicorn app.main:app --reload --port 8000
-```
 
-Endpoint utama: `POST /api/profile/extract` (multipart, field `file`).
-
-## Menjalankan frontend
-
-```bash
+# frontend
 cd frontend
-cp .env.local.example .env.local   # isi NEXT_PUBLIC_API_URL, Supabase keys
-npm install
-npm run dev
+cp .env.local.example .env.local   # isi NEXT_PUBLIC_SUPABASE_URL/ANON_KEY
+npm install && npm run dev
 ```
 
-Buka `http://localhost:3000` — kalau belum login, kelempar ke `/login`
-(daftar/masuk pakai email+password). Setelah login: uploader CV, atau
-profil tersimpan kalau sudah pernah upload.
+Supabase: jalankan `backend/supabase/*.sql` di SQL Editor, dan matikan
+"Confirm email" kalau ingin signup langsung login.
 
-## Supabase
+## Roadmap
 
-Perlu project Supabase (buat, matiin "Confirm email" di Authentication →
-Providers → Email biar signup langsung login, lalu jalanin
-`backend/supabase/001_candidate_profiles.sql` di SQL Editor). Kalau opsi
-"Automatically expose new tables" dimatiin pas bikin project, tambahin
-juga (sudah termasuk di file migration):
-
-```sql
-grant select, insert, update, delete on public.candidate_profiles to authenticated;
-```
-
-Isi `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-(publishable key) di `frontend/.env.local`.
-
-## Desain
-
-Minimalis/editorial: font serif (Fraunces) untuk heading + IBM Plex Sans
-untuk body, self-hosted via `@fontsource` (tanpa request ke Google Fonts saat
-runtime). Palet terbatas: paper/ink/satu warna aksen (rust/terracotta),
-hairline border, tanpa gradient/shadow berlebihan.
-
-## Next steps (saran urutan)
-
-1. Validasi lowongan (cek link, red flag) + enrichment (salary, visa tag,
-   company snapshot, freshness).
-2. Matching + skor kecocokan.
-3. Generate CV tailored (template ATS-friendly) + cover letter + form
-   answer draft.
-4. Tracker status lamaran (manual update oleh user).
+Validasi lowongan · matching + skor kecocokan · CV tailored & cover letter ·
+tracker lamaran.
