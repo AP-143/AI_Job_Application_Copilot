@@ -1,13 +1,12 @@
 @import "tailwindcss";
 
 /*
-  Application Desk — premium studio style (ref: wearebou.com and Bou & Co).
+  Application Desk — cinematic style: Instrument Serif headlines, Inter body, deep navy dark tone,
+  liquid-glass controls, full-bleed video heroes with no scrim, no decorative gradients.
   One token set, two tones. Light is the default; `.tone-dark` remaps the same tokens for the
-  charcoal-teal sections and `.tone-light` restores them inside a dark section.
+  navy sections and `.tone-light` restores them inside a dark section.
   Light contrast (WCAG): ink/white 19.8, ink-2/white 7.7 (mint 6.8), ink-3/white 5.3, danger/white 5.9,
   control border 8a8a8a/white 3.5.
-  Dark contrast on the lightest gradient stop #2c3a38: ink 10.9, ink-2 5.3, ink-3 4.6, danger 5.4,
-  line-strong 3.8.
 */
 :root,
 .tone-light {
@@ -27,33 +26,25 @@
   --ring: rgb(10 10 10 / 0.08);
 }
 
+/* Cinematic dark tone: deep navy, white ink, muted gray. */
 .tone-dark {
-  --bg: #121716;
-  --surface: #1a2120;
+  --bg: hsl(201 100% 13%);
+  --surface: hsl(201 100% 16%);
   --sunken: rgb(255 255 255 / 0.1);
   --mint: rgb(230 245 234 / 0.1);
-  --ink: #f5f5f3;
-  --ink-hover: #ffffff;
-  --ink-2: #a7aeac;
-  --ink-3: #9aa2a0;
-  --line: rgb(255 255 255 / 0.12);
+  --ink: hsl(0 0% 100%);
+  --ink-hover: hsl(0 0% 100%);
+  --ink-2: hsl(240 4% 66%);
+  --ink-3: hsl(240 4% 62%);
+  --line: hsl(0 0% 18%);
   --line-strong: rgb(255 255 255 / 0.45);
-  --on-ink: #0e1312;
+  --on-ink: hsl(0 0% 4%);
   --danger: #ff8f85;
   --danger-soft: rgb(255 143 133 / 0.12);
   --ring: rgb(255 255 255 / 0.18);
 }
 
-/* Landing hero: deep navy, white ink, muted gray. Use together with .tone-dark. */
-.tone-hero {
-  --bg: hsl(201 100% 13%);
-  --ink: hsl(0 0% 100%);
-  --ink-2: hsl(240 4% 66%);
-  --line: hsl(0 0% 18%);
-}
-
 :root {
-  --dark-gradient: linear-gradient(180deg, #0e1312 0%, #1b2423 55%, #2c3a38 100%);
 
   --ease: cubic-bezier(0.29, 0.48, 0.5, 0.99);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -78,10 +69,8 @@
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
 
-  --font-sans: var(--font-host), "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-display: var(--font-host), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: var(--font-inter), "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-serif: var(--font-instrument), Georgia, serif;
-  --font-body: var(--font-inter), "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* 6-step scale. Big type is light (300) with bold emphasis; body is 400. */
   --text-display: 3.5rem;
@@ -159,6 +148,26 @@ body {
   b {
     font-weight: 700;
   }
+
+  /* Keep browser autofill from painting a pale box over the glass fields. The long transition
+     holds the autofill background off; text and caret follow the section tone. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--ink);
+    caret-color: var(--ink);
+    transition: background-color 600000s 0s, color 600000s 0s;
+  }
+
+  input:autofill {
+    background: transparent;
+  }
+
+  /* Instrument Serif has one weight, so serif emphasis is carried by colour instead of bold. */
+  .font-serif :is(strong, b) {
+    font-weight: 400;
+    color: var(--ink-2);
+  }
 }
 
 
@@ -167,10 +176,6 @@ body {
   .tone-dark,
   .tone-light {
     color: var(--ink);
-  }
-
-  .surface-dark {
-    background: var(--dark-gradient);
   }
 
   /* Hairline grid: cells share 1px borders with no gaps, like Bou's logo wall and stat rows. */
@@ -185,17 +190,13 @@ body {
     border-bottom: 1px solid var(--line);
   }
 
-  /* Full-bleed hero backdrop: video or still frame under a charcoal-teal scrim.
-     The gradient underneath shows while media loads or when a file is missing. */
+  /* Full-bleed hero video, no scrim. Navy shows while it loads or when the file is missing. */
   .hero-media {
     position: absolute;
     inset: 0;
     z-index: -1;
     overflow: hidden;
-    background-color: #121716;
-    background-image: var(--dark-gradient);
-    background-position: center;
-    background-size: cover;
+    background: var(--bg);
   }
 
   .hero-media video {
@@ -204,14 +205,6 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  .hero-media-bare {
-    background: var(--bg);
-  }
-
-  .hero-media-bare::after {
-    display: none;
   }
 
   /* Glass pill for controls over the hero video. Light edge comes from a masked gradient ring. */
@@ -247,15 +240,6 @@ body {
     mask-composite: exclude;
     pointer-events: none;
   }
-
-  .hero-media::after {
-    position: absolute;
-    inset: 0;
-    content: "";
-    background:
-      linear-gradient(180deg, rgb(14 19 18 / 0.62) 0%, rgb(14 19 18 / 0.45) 40%, rgb(14 19 18 / 0.88) 100%),
-      rgb(44 58 56 / 0.2);
-  }
 }
 
 .tabular {
@@ -281,23 +265,13 @@ body {
   }
 }
 
-/* Soft mint wash behind light sections, like daylight through frosted glass. */
-.wash {
-  background:
-    radial-gradient(60% 50% at 15% 0%, rgb(214 240 222 / 0.9), transparent 70%),
-    radial-gradient(50% 45% at 90% 30%, rgb(224 244 236 / 0.8), transparent 70%),
-    var(--bg);
-}
-
 /* Rounded dark block that holds the job results. Use together with .tone-dark. */
 .dark-block {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border-radius: var(--radius-sm);
-  background:
-    radial-gradient(70% 60% at 50% 0%, rgb(58 74 70 / 0.55), transparent 70%),
-    linear-gradient(180deg, #1a2120 0%, #121716 60%);
+  border-radius: 20px;
+  background: var(--bg);
 }
 
 .stagger > * {

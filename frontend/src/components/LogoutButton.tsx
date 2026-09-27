@@ -18,7 +18,7 @@ export default function LogoutButton() {
   }
 
   return (
-    <Button variant="arrow" onClick={handleLogout} loading={loading} className="text-meta sm:text-body">
+    <Button variant="glass" onClick={handleLogout} loading={loading} className="min-h-0 px-6 py-2.5 text-sm">
       Keluar
     </Button>
   );

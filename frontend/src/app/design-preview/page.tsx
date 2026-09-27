@@ -34,6 +34,14 @@ const listings: JobListingRow[] = [
   },
 ];
 
+const many: JobListingRow[] = Array.from({ length: 40 }, (_, i) => ({
+  ...listings[i % listings.length],
+  id: `m${i}`,
+  source_url: `https://example.com/m${i}`,
+  fetched_at: daysAgo(i % 20),
+  posted_at: daysAgo(i % 20),
+}));
+
 const profile: CandidateProfileRow = {
   id: "p", user_id: "u", created_at: daysAgo(3), updated_at: daysAgo(0),
   source_filename: "CV_Final_Revisi_Terbaru_Benar_Benar_Final_2026_versi_bahasa_inggris_dan_indonesia.pdf",
@@ -78,6 +86,7 @@ export default async function DesignPreview({ searchParams }: { searchParams: Pr
     "jobs-empty": { hasProfile: true, initialListings: [] },
     "jobs-noprofile": { hasProfile: false, initialListings: [] },
     "jobs-overflow": { hasProfile: true, initialListings: listings },
+    "jobs-many": { hasProfile: true, initialListings: many },
   }[state];
   if (!jobs) notFound();
 

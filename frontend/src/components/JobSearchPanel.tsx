@@ -5,7 +5,7 @@ import { useState, type CSSProperties, type ReactNode } from "react";
 import JobSearchForm, { type SearchValues } from "./JobSearchForm";
 import JobResultCard, { sourceName } from "./JobResultCard";
 import PageHero from "./PageHero";
-import { Alert, ArrowDot, Button, EmptyState, Skeleton, Spinner, Tag, Toast, buttonClass, displayClass } from "./ui";
+import { Alert, Button, EmptyState, Icon, Skeleton, Spinner, Tag, Toast, buttonClass, displayClass, panelClass, panelTitleClass } from "./ui";
 import { ApiError, searchJobs } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import { byNewest, isFresh, timeAgo } from "@/lib/format";
@@ -30,26 +30,51 @@ function searchErrorMessage(err: unknown): string {
   return err instanceof Error ? err.message : "Pencarian belum berhasil. Coba cari lagi.";
 }
 
-function CardSkeleton() {
+const PAGE_SIZE = 15;
+
+function RowSkeleton() {
   return (
-    <div aria-hidden="true" className="flex h-60 flex-col rounded-xs border border-line p-6">
-      <Skeleton className="h-6 w-20 rounded-full" />
-      <Skeleton className="mt-6 h-5 w-4/5" />
-      <Skeleton className="mt-2 h-4 w-1/2" />
-      <Skeleton className="mt-6 h-3.5 w-2/3" />
+    <div aria-hidden="true" className="flex items-center justify-between gap-6 py-4">
+      <div className="flex-1">
+        <Skeleton className="h-4 w-3/5" />
+        <Skeleton className="mt-2 h-3 w-2/5" />
+      </div>
+      <Skeleton className="hidden h-3.5 w-28 sm:block" />
     </div>
   );
 }
 
-function Grid({ listings }: { listings: JobListingRow[] }) {
+function List({ listings }: { listings: JobListingRow[] }) {
   return (
-    <div className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <ul className="stagger -mx-3 divide-y divide-line">
       {listings.map((job, index) => (
-        <div key={job.id} style={{ "--i": index } as CSSProperties}>
+        <li key={job.id} style={{ "--i": index } as CSSProperties}>
           <JobResultCard job={job} />
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
+  );
+}
+
+function Pager({ page, pages, onChange }: { page: number; pages: number; onChange: (page: number) => void }) {
+  if (pages <= 1) return null;
+  const nav = buttonClass("secondary", "min-h-10 gap-2 text-sm disabled:opacity-30");
+  return (
+    <nav aria-label="Halaman hasil" className="mt-6 flex items-center justify-between gap-4 border-t border-line pt-6">
+      <button type="button" className={nav} disabled={page === 0} onClick={() => onChange(page - 1)}>
+        <Icon name="arrow" className="h-4 w-4 rotate-180" />
+        <span className="hidden sm:inline">Sebelumnya</span>
+        <span className="sr-only sm:hidden">Sebelumnya</span>
+      </button>
+      <p className="tabular text-sm text-ink-2" aria-live="polite">
+        Halaman <span className="text-ink">{page + 1}</span> dari {pages}
+      </p>
+      <button type="button" className={nav} disabled={page >= pages - 1} onClick={() => onChange(page + 1)}>
+        <span className="hidden sm:inline">Berikutnya</span>
+        <span className="sr-only sm:hidden">Berikutnya</span>
+        <Icon name="arrow" className="h-4 w-4" />
+      </button>
+    </nav>
   );
 }
 
@@ -63,41 +88,60 @@ function Results({
   count: number;
   loading: boolean;
   updated: string | null;
-  sources: string[];
+  sources: Array<{ name: string; count: number }>;
   children: ReactNode;
 }) {
+  const status = loading ? (
+    <span className="flex items-center gap-2">
+      <Spinner className="h-3.5 w-3.5" /> Mencari di 4 sumber…
+    </span>
+  ) : (
+    <span suppressHydrationWarning>{updated ? `Diperbarui ${updated}` : "30 hari terakhir"}</span>
+  );
+
   return (
-    <section aria-labelledby="results-heading" className="page pt-12 pb-24 sm:pt-16">
-      <div className="dark-block tone-dark px-4 py-10 sm:px-8 sm:py-12 lg:px-10">
-        <div className="mb-8 flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 id="results-heading" className="text-heading font-light text-ink">
-              <strong className="tabular font-bold">{count} lowongan</strong>
-            </h2>
-            <p className="mt-1 flex items-center gap-2 text-meta text-ink-2" aria-live="polite">
-              {loading ? (
-                <>
-                  <Spinner className="h-3.5 w-3.5" /> Mencari di 4 sumber…
-                </>
-              ) : (
-                <span suppressHydrationWarning>
-                  {updated ? `Diperbarui ${updated} · ` : ""}30 hari terakhir, terbaru di depan
-                </span>
-              )}
-            </p>
-          </div>
-          {sources.length > 0 && (
-            <ul aria-label="Sumber" className="flex flex-wrap gap-1.5">
-              {sources.map((source) => (
-                <li key={source}>
-                  <Tag tone="outline">{source}</Tag>
-                </li>
-              ))}
-            </ul>
-          )}
+    <section
+      id="results"
+      aria-labelledby="results-heading"
+      className={`page grid scroll-mt-6 gap-5 pt-10 pb-24 lg:items-start ${
+        count > 0 ? "lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)]" : ""
+      }`}
+    >
+      <div className={panelClass}>
+        <div className="mb-3 flex items-baseline justify-between gap-4">
+          <h2 id="results-heading" className={panelTitleClass}>
+            Lowongan
+          </h2>
+          <p className="text-meta text-ink-2 lg:hidden" aria-live="polite">
+            {status}
+          </p>
         </div>
         {children}
       </div>
+
+      {count > 0 && (
+        <div className="flex min-w-0 flex-col gap-5">
+          <div className={panelClass}>
+            <h2 className={`${panelTitleClass} mb-5`}>Ringkasan</h2>
+            <p className="tabular font-serif text-6xl leading-none text-ink">{count}</p>
+            <p className="mt-2 text-meta text-ink-2">lowongan dari 30 hari terakhir, terbaru di depan</p>
+            <p className="mt-4 border-t border-line pt-4 text-meta text-ink-2" aria-live="polite">
+              {status}
+            </p>
+          </div>
+          <div className={panelClass}>
+            <h2 className={`${panelTitleClass} mb-5`}>Sumber</h2>
+            <ul className="divide-y divide-line text-meta">
+              {sources.map((source) => (
+                <li key={source.name} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+                  <span className="text-ink">{source.name}</span>
+                  <span className="tabular text-ink-2">{source.count}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -120,9 +164,17 @@ export default function JobSearchPanel({
   const [lastRequest, setLastRequest] = useState<JobSearchRequest | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [seed, setSeed] = useState<{ key: number; values: SearchValues } | null>(null);
+  const [page, setPage] = useState(0);
+
+  function goToPage(next: number) {
+    setPage(next);
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById("results")?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+  }
 
   async function handleSearch(request: JobSearchRequest) {
     setLoading(true);
+    setPage(0);
     setSearchError(null);
     setSourceErrors([]);
     setLastRequest(request);
@@ -198,7 +250,15 @@ export default function JobSearchPanel({
 
   const visibleListings = listings.filter((job) => isFresh(job)).sort(byNewest);
   const count = visibleListings.length;
-  const sources = Array.from(new Set(visibleListings.map((job) => sourceName(job.source))));
+  const pages = Math.ceil(count / PAGE_SIZE);
+  const currentPage = Math.min(page, Math.max(pages - 1, 0));
+  const pageListings = visibleListings.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+  const sourceCounts = new Map<string, number>();
+  for (const job of visibleListings) {
+    const name = sourceName(job.source);
+    sourceCounts.set(name, (sourceCounts.get(name) ?? 0) + 1);
+  }
+  const sources = Array.from(sourceCounts, ([name, total]) => ({ name, count: total })).sort((a, b) => b.count - a.count);
   const latestFetch = visibleListings.reduce<string | null>(
     (latest, job) => (!latest || job.fetched_at > latest ? job.fetched_at : latest),
     null
@@ -213,9 +273,9 @@ export default function JobSearchPanel({
   const results = (
     <Results count={count} loading={loading} updated={timeAgo(latestFetch)} sources={sources}>
       {loading && count === 0 ? (
-        <div role="status" aria-label="Mencari lowongan" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div role="status" aria-label="Mencari lowongan" className="divide-y divide-line">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <CardSkeleton key={i} />
+            <RowSkeleton key={i} />
           ))}
         </div>
       ) : count === 0 ? (
@@ -259,7 +319,8 @@ export default function JobSearchPanel({
         )
       ) : (
         <div inert={loading} className={`transition-opacity duration-[var(--dur-base)] ${loading ? "opacity-40" : "opacity-100"}`}>
-          <Grid listings={visibleListings} />
+          <List key={currentPage} listings={pageListings} />
+          <Pager page={currentPage} pages={pages} onChange={goToPage} />
         </div>
       )}
     </Results>
@@ -270,13 +331,14 @@ export default function JobSearchPanel({
       <>
         <PageHero>
           <Tag>Pencarian lowongan</Tag>
-          <h1 className={`${displayClass} animate-rise mt-6 max-w-[14ch]`}>
+          <h1 className={`${displayClass} animate-fade-rise mt-6 max-w-[14ch]`}>
             Unggah <strong>CV</strong> dulu.
           </h1>
-          <p className="mt-6 max-w-[34rem] text-lead text-ink-2">Setelah profil jadi, kamu bisa mencari lowongan di sini.</p>
-          <Link href="/" className={buttonClass("primary", "mt-9 min-h-12 gap-3 pr-2")}>
+          <p className="animate-fade-rise-delay mt-6 max-w-[34rem] text-lg text-ink-2">
+            Setelah profil jadi, kamu bisa mencari lowongan di sini.
+          </p>
+          <Link href="/" className={buttonClass("glass", "animate-fade-rise-delay-2 mt-10 px-14 py-5 text-base")}>
             Unggah CV
-            <ArrowDot inverse className="h-8 w-8" />
           </Link>
         </PageHero>
         {count > 0 && results}
@@ -288,13 +350,13 @@ export default function JobSearchPanel({
     <div aria-busy={loading}>
       <PageHero>
         <Tag>Pencarian lowongan</Tag>
-        <h1 className={`${displayClass} animate-rise mt-6 max-w-[14ch]`}>
-          Cari peran <strong>yang cocok</strong>.
+        <h1 className={`${displayClass} animate-fade-rise mt-6 max-w-[16ch]`}>
+          Cari peran <strong>yang cocok.</strong>
         </h1>
-        <div className="mt-10 max-w-5xl">
+        <div className="animate-fade-rise-delay mt-10 w-full max-w-5xl">
           <JobSearchForm key={seed?.key ?? 0} initialValues={initialValues} onSearch={handleSearch} loading={loading} />
         </div>
-        <div aria-live="polite" className="mt-4 max-w-5xl space-y-3 empty:hidden">
+        <div aria-live="polite" className="mt-4 w-full max-w-5xl space-y-3 empty:hidden">
           {searchError && (
             <Alert
               title="Pencarian belum berhasil"

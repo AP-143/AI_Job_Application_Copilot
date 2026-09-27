@@ -52,13 +52,9 @@ export function Spinner({ className = "h-4 w-4" }: { className?: string }) {
 
 /* ---------- Type ---------- */
 
-/* The one big headline per page: light weight with bold keywords (Bou's "only hires" pattern). */
+/* The one big headline per page: Instrument Serif, keywords in <strong> shown muted rather than bold. */
 export const displayClass =
-  "text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.06] font-light tracking-[-0.03em] text-ink [&_strong]:font-bold";
-
-/* Section headings on the landing page and similar. */
-export const titleClass =
-  "text-[clamp(2rem,4vw,3.25rem)] leading-[1.1] font-light tracking-[-0.025em] text-ink [&_strong]:font-bold";
+  "font-serif text-5xl leading-[0.95] font-normal tracking-[-0.025em] text-ink sm:text-6xl md:text-7xl [&_strong]:font-normal [&_strong]:text-ink-2";
 
 /* Round arrow badge after link text. `inverse` flips it inside a filled ink button. Follows the section tone. */
 export function ArrowDot({ inverse = false, className = "" }: { inverse?: boolean; className?: string }) {
@@ -73,6 +69,10 @@ export function ArrowDot({ inverse = false, className = "" }: { inverse?: boolea
     </span>
   );
 }
+
+/* White rounded panel shared by the profile and jobs pages. */
+export const panelClass = "rounded-[20px] border border-line bg-surface p-5 sm:p-7";
+export const panelTitleClass = "font-serif text-[1.75rem] leading-none font-normal text-ink";
 
 /* ---------- Button ---------- */
 
@@ -133,45 +133,6 @@ export const inputClass =
   "aria-[invalid=true]:border-danger aria-[invalid=true]:shadow-[0_0_0_4px_rgb(194_38_29/0.1)] " +
   "disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-3";
 
-export function Field({
-  id,
-  label,
-  hint,
-  error,
-  aside,
-  children,
-}: {
-  id: string;
-  label: string;
-  hint?: string;
-  error?: string | null;
-  aside?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-4">
-        <label htmlFor={id} className="text-meta font-semibold text-ink">
-          {label}
-        </label>
-        {aside}
-      </div>
-      {hint && (
-        <p id={`${id}-hint`} className="mt-1 text-meta text-ink-2">
-          {hint}
-        </p>
-      )}
-      <div className="mt-2">{children}</div>
-      {error && (
-        <p id={`${id}-error`} className="mt-2 flex items-start gap-1.5 text-meta font-medium text-danger">
-          <Icon name="alert" className="mt-px h-4 w-4" />
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
 /* ---------- Panel (card) ---------- */
 
 export function Panel({
@@ -205,7 +166,7 @@ export function Tag({ children, tone = "light" }: { children: ReactNode; tone?: 
   };
   return (
     <span
-      className={`inline-flex min-h-6 items-center gap-1.5 rounded-full px-2.5 text-tag font-bold uppercase ${tones[tone]}`}
+      className={`inline-flex min-h-6 items-center gap-1.5 rounded-full px-2.5 py-1 text-tag leading-tight font-bold uppercase ${tones[tone]}`}
     >
       {children}
     </span>
@@ -239,7 +200,7 @@ export function StatGrid({
         <div key={item.label} className={`flex flex-col-reverse gap-2 ${compact ? "p-3" : "p-5 sm:p-6"}`}>
           <dt className="text-meta text-ink-2">{item.label}</dt>
           <dd
-            className={`tabular leading-none font-light tracking-[-0.02em] text-ink ${
+            className={`tabular font-serif leading-none font-normal tracking-[-0.02em] text-ink ${
               compact ? "text-heading" : "text-[clamp(2rem,3.4vw,3rem)]"
             }`}
           >
@@ -248,29 +209,6 @@ export function StatGrid({
         </div>
       ))}
     </dl>
-  );
-}
-
-/* ---------- Accordion (native details, works without JS) ---------- */
-
-export function Accordion({ items }: { items: ReadonlyArray<{ question: string; answer: ReactNode }> }) {
-  return (
-    <div className="border-t border-line">
-      {items.map((item) => (
-        <details key={item.question} className="group border-b border-line">
-          <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-6 py-5 text-lead text-ink [&::-webkit-details-marker]:hidden">
-            {item.question}
-            <span
-              aria-hidden="true"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line-strong transition-transform duration-[var(--dur-base)] ease-[var(--ease)] group-open:rotate-45"
-            >
-              <Icon name="plus" className="h-4 w-4" />
-            </span>
-          </summary>
-          <div className="max-w-[40rem] pr-14 pb-6 text-body text-ink-2">{item.answer}</div>
-        </details>
-      ))}
-    </div>
   );
 }
 
@@ -293,7 +231,7 @@ export function EmptyState({
 }) {
   return (
     <div className="mx-auto flex max-w-[34rem] flex-col items-center px-4 py-16 text-center sm:py-24">
-      <h3 className="text-heading font-light text-ink [&_strong]:font-bold">{title}</h3>
+      <h3 className="font-serif text-heading font-normal text-ink [&_strong]:font-normal [&_strong]:text-ink-2">{title}</h3>
       <div className="mt-3 text-body text-ink-2">{children}</div>
       {action && <div className="mt-8">{action}</div>}
     </div>

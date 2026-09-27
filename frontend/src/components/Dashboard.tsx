@@ -96,14 +96,13 @@ export default function Dashboard({
               </span>
             </div>
 
-            <h1 className={`${displayClass} animate-rise mt-6 max-w-[18ch] break-words`}>
+            <h1 className={`${displayClass} animate-fade-rise mt-6 max-w-[18ch] break-words`}>
               Profil <strong>{displayName(profile.contact.full_name)}</strong> siap.
             </h1>
 
             <div className="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-8">
-              <Link href="/jobs" className={buttonClass("primary", "min-h-12 gap-3 pr-2")}>
+              <Link href="/jobs" className={buttonClass("glass", "animate-fade-rise-delay px-10 py-4 text-base")}>
                 Cari lowongan
-                <ArrowDot inverse className="h-8 w-8" />
               </Link>
               <Button variant="arrow" onClick={() => setShowUploader(true)}>
                 Ganti CV
@@ -146,7 +145,7 @@ export default function Dashboard({
       ) : (
         <PageHero>
           <Tag>{isReplacing ? "Ganti CV" : "Langkah 1 dari 3"}</Tag>
-          <h1 className={`${displayClass} animate-rise mt-6 max-w-[16ch]`}>
+          <h1 className={`${displayClass} animate-fade-rise mt-6 max-w-[16ch]`}>
             {isReplacing ? (
               <>
                 Unggah <strong>CV terbaru</strong>.

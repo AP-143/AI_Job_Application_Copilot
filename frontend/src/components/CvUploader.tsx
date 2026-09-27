@@ -74,8 +74,8 @@ export default function CvUploader({ onExtracted }: CvUploaderProps) {
       >
         <div className="w-full max-w-md">
           <Spinner className="mx-auto h-6 w-6 text-ink" />
-          <p className="mt-6 text-heading font-light text-ink">
-            Membaca <strong className="font-bold">CV kamu</strong>…
+          <p className="mt-6 font-serif text-heading font-normal text-ink">
+            Membaca <strong className="font-normal text-ink-2">CV kamu</strong>…
           </p>
           <p className="mt-2 truncate text-meta text-ink-2" title={fileName ?? undefined}>
             {fileName} · <span className="tabular">{elapsed} dtk</span>
@@ -133,15 +133,15 @@ export default function CvUploader({ onExtracted }: CvUploaderProps) {
           >
             <Icon name={isDragging ? "upload" : "file"} className="h-6 w-6" />
           </span>
-          <span className="mt-6 block text-[clamp(1.5rem,3vw,2.25rem)] leading-[1.1] font-light tracking-[-0.02em] text-ink">
+          <span className="mt-6 block font-serif text-[clamp(1.75rem,3.4vw,2.75rem)] leading-[1.05] font-normal tracking-[-0.02em] text-ink">
             {isDragging ? (
               <>
-                Lepaskan untuk <strong className="font-bold">mengunggah</strong>.
+                Lepaskan untuk <strong className="font-normal text-ink-2">mengunggah</strong>.
               </>
             ) : (
               <>
                 Tarik CV ke sini, atau{" "}
-                <strong className="font-bold underline decoration-line-strong underline-offset-[6px]">pilih file</strong>.
+                <strong className="font-normal text-ink-2 underline decoration-line-strong underline-offset-[6px]">pilih file</strong>.
               </>
             )}
           </span>

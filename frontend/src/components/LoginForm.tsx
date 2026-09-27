@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Wordmark from "@/components/Wordmark";
 import { HeroVideo } from "@/components/HeroMedia";
-import { Alert, Button, Field, Icon, displayClass, inputClass } from "@/components/ui";
+import { Alert, Button, Icon, buttonClass } from "@/components/ui";
 
 export type AuthMode = "signin" | "signup";
 
@@ -27,11 +27,14 @@ function authErrorMessage(message: string): string {
   return `Detail dari server: ${message}`;
 }
 
-const STEPS = [
-  { title: "Unggah CV", body: "PDF, DOCX, atau TXT." },
-  { title: "Periksa profil", body: "Bagian yang kurang jelas ditandai." },
-  { title: "Cari lowongan", body: "Dari 30 hari terakhir." },
-];
+/* Glass pill that wraps an input; the input itself stays transparent so the ring from ::before shows. */
+const fieldShell =
+  "liquid-glass flex h-14 items-center rounded-full bg-white/[0.04] backdrop-blur-md transition-shadow duration-[var(--dur-fast)] " +
+  "focus-within:shadow-[inset_0_1px_1px_rgb(255_255_255/0.1),0_0_0_3px_rgb(255_255_255/0.22)] " +
+  "has-[[aria-invalid=true]]:shadow-[inset_0_1px_1px_rgb(255_255_255/0.1),0_0_0_2px_var(--danger)]";
+
+const fieldInput =
+  "h-full w-full min-w-0 bg-transparent px-6 text-base text-ink placeholder:text-ink-2 focus:outline-none disabled:opacity-60";
 
 export default function LoginForm({ initialMode }: { initialMode: AuthMode }) {
   const router = useRouter();
@@ -81,158 +84,132 @@ export default function LoginForm({ initialMode }: { initialMode: AuthMode }) {
   }
 
   return (
-    <main className="relative min-h-[100svh] bg-bg">
-      {/* Mobile: a video band on top. Desktop: the video fills the page behind the form card. */}
-      <section className="tone-dark relative isolate flex min-h-[42svh] flex-col overflow-hidden lg:absolute lg:inset-0 lg:min-h-0">
-        <HeroVideo />
-        <div className="page flex min-h-[4.5rem] items-center">
-          <Link href="/" aria-label="Application Desk, ke beranda" className="rounded-xs">
-            <Wordmark />
-          </Link>
-        </div>
-        {/* .page sets padding-inline outside any layer, so the right gutter for the card goes on an inner div. */}
-        <div className="page mt-auto pb-10 lg:my-auto lg:pb-0">
-          <div className="lg:pr-[32rem]">
-            <h1 className={`${displayClass} animate-rise max-w-[14ch]`}>
-              Satu CV untuk <strong>lowongan yang cocok</strong>.
-            </h1>
-            <ol className="mt-12 hidden max-w-[36rem] grid-cols-3 gap-6 lg:grid">
-              {STEPS.map((step, index) => (
-                <li key={step.title} className="border-t border-line pt-4">
-                  <span className="tabular text-meta text-ink-3">{index + 1}</span>
-                  <p className="mt-1 font-semibold text-ink">{step.title}</p>
-                  <p className="text-meta text-ink-2">{step.body}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
-      </section>
+    <main className="tone-dark relative isolate flex min-h-[100svh] flex-col overflow-hidden">
+      <HeroVideo />
 
-      <div className="page relative py-10 lg:pointer-events-none lg:flex lg:min-h-[100svh] lg:items-center lg:justify-end lg:py-24">
-        <section
-          aria-labelledby="auth-heading"
-          className="tone-light mx-auto w-full max-w-[27rem] lg:pointer-events-auto lg:mx-0 lg:rounded-md lg:bg-bg lg:p-8 lg:shadow-[0_40px_100px_-30px_rgb(0_0_0/0.6)]"
+      <header className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between px-8 py-6">
+        <Link href="/" aria-label="Application Desk, ke beranda" className="rounded-xs">
+          <Wordmark />
+        </Link>
+        <Link href="/" className={buttonClass("glass", "min-h-0 gap-2 px-6 py-2.5 text-sm")}>
+          <Icon name="arrow" className="h-4 w-4 rotate-180" />
+          Beranda
+        </Link>
+      </header>
+
+      <section
+        aria-labelledby="auth-heading"
+        className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 pt-8 pb-16 text-center"
+      >
+        <h1
+          id="auth-heading"
+          key={mode}
+          className="animate-fade-rise font-serif text-5xl leading-[0.95] font-normal tracking-[-1.5px] text-ink sm:text-6xl [&_em]:text-ink-2 [&_em]:not-italic"
         >
-          <div role="group" aria-label="Pilih masuk atau daftar" className="relative grid grid-cols-2 rounded-full bg-sunken p-1">
-            <span
-              aria-hidden="true"
-              className={`absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-ink transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)] ${
-                isSignin ? "translate-x-0" : "translate-x-full"
-              }`}
+          {isSignin ? (
+            <>
+              Selamat datang <em>lagi.</em>
+            </>
+          ) : (
+            <>
+              Buat akun <em>baru.</em>
+            </>
+          )}
+        </h1>
+        <p className="animate-fade-rise-delay mt-5 text-base leading-relaxed text-ink-2">
+          {isSignin
+            ? "Profil dan hasil pencarian terakhirmu sudah menunggu."
+            : "Profil dan preferensi pencarianmu akan tersimpan di akun ini."}
+        </p>
+
+        <form
+          onSubmit={handleSubmit}
+          aria-label={isSignin ? "Form masuk" : "Form pendaftaran"}
+          className="animate-fade-rise-delay-2 mt-10 space-y-3 text-left"
+        >
+          <label htmlFor="email" className="sr-only">
+            Email
+          </label>
+          <div className={fieldShell}>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              inputMode="email"
+              spellCheck={false}
+              disabled={loading}
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="Email"
+              aria-invalid={error ? true : undefined}
+              className={fieldInput}
             />
-            {(["signin", "signup"] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={mode === value}
-                onClick={() => switchMode(value)}
-                className={`relative min-h-10 rounded-full text-body font-semibold transition-colors duration-[var(--dur-fast)] ${
-                  mode === value ? "text-on-ink" : "text-ink-2 hover:text-ink"
-                }`}
-              >
-                {value === "signin" ? "Masuk" : "Daftar"}
-              </button>
-            ))}
           </div>
 
-          <h2 id="auth-heading" className="mt-7 text-heading font-light text-ink">
-            {isSignin ? (
-              <>
-                Selamat datang <strong>lagi</strong>.
-              </>
-            ) : (
-              <>
-                Buat akun <strong>baru</strong>.
-              </>
-            )}
-          </h2>
-          <p className="mt-1.5 text-body text-ink-2">
-            {isSignin
-              ? "Profil dan hasil pencarian terakhirmu sudah menunggu."
-              : "Profil dan preferensi pencarianmu akan tersimpan di akun ini."}
-          </p>
-
-          <form onSubmit={handleSubmit} aria-label={isSignin ? "Form masuk" : "Form pendaftaran"} className="mt-6 space-y-5">
-            <Field id="email" label="Email">
-              <input
-                id="email"
-                type="email"
-                required
-                autoComplete="email"
-                inputMode="email"
-                spellCheck={false}
-                disabled={loading}
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="nama@email.com"
-                aria-invalid={error ? true : undefined}
-                className={inputClass}
-              />
-            </Field>
-
-            <Field
+          <label htmlFor="password" className="sr-only">
+            Password
+          </label>
+          <div className={fieldShell}>
+            <input
               id="password"
-              label="Password"
-              aside={!isSignin && <span className="text-meta text-ink-2">Minimal 6 karakter</span>}
+              type={showPassword ? "text" : "password"}
+              required
+              minLength={6}
+              autoComplete={isSignin ? "current-password" : "new-password"}
+              disabled={loading}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={isSignin ? "Password" : "Password, minimal 6 karakter"}
+              aria-invalid={error ? true : undefined}
+              className={fieldInput}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+              aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+              aria-pressed={showPassword}
+              className="mr-2 grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:text-ink"
             >
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  minLength={6}
-                  autoComplete={isSignin ? "current-password" : "new-password"}
-                  disabled={loading}
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  aria-invalid={error ? true : undefined}
-                  className={`${inputClass} pr-14`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
-                  aria-pressed={showPassword}
-                  className="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-sm text-ink-2 transition-colors hover:text-ink focus-visible:outline-offset-[-2px]"
-                >
-                  <Icon name={showPassword ? "eyeOff" : "eye"} />
-                </button>
-              </div>
-            </Field>
+              <Icon name={showPassword ? "eyeOff" : "eye"} />
+            </button>
+          </div>
 
-            <div aria-live="polite">
-              {error && <Alert title={isSignin ? "Belum bisa masuk" : "Akun belum bisa dibuat"}>{error}</Alert>}
-              {notice && (
-                <Alert tone="success" title="Cek email kamu">
-                  {notice}
-                </Alert>
-              )}
-            </div>
+          <div aria-live="polite" className="empty:hidden">
+            {error && <Alert title={isSignin ? "Belum bisa masuk" : "Akun belum bisa dibuat"}>{error}</Alert>}
+            {notice && (
+              <Alert tone="success" title="Cek email kamu">
+                {notice}
+              </Alert>
+            )}
+          </div>
 
-            <Button
-              type="submit"
-              loading={loading}
-              loadingText={isSignin ? "Memeriksa akun…" : "Membuat akun…"}
-              className="min-h-12 w-full"
-            >
-              {isSignin ? "Masuk" : "Buat akun"}
-            </Button>
-          </form>
-
-          <p className="mt-6 text-meta text-ink-2">
-            Kami tidak pernah mengirim lamaran atas namamu. Setiap keputusan tetap di tanganmu.
-          </p>
-
-          <Link
-            href="/"
-            className="mt-6 inline-flex min-h-11 items-center gap-2 text-meta text-ink-2 transition-colors hover:text-ink"
+          <Button
+            type="submit"
+            variant="glass"
+            loading={loading}
+            loadingText={isSignin ? "Memeriksa akun…" : "Membuat akun…"}
+            className="mt-3 h-14 w-full text-base"
           >
-            <Icon name="arrow" className="h-4 w-4 rotate-180" />
-            Kembali ke beranda
-          </Link>
-        </section>
-      </div>
+            {isSignin ? "Masuk" : "Buat akun"}
+          </Button>
+        </form>
+
+        <p className="mt-8 text-sm text-ink-2">
+          {isSignin ? "Belum punya akun?" : "Sudah punya akun?"}{" "}
+          <button
+            type="button"
+            onClick={() => switchMode(isSignin ? "signup" : "signin")}
+            className="text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink"
+          >
+            {isSignin ? "Daftar" : "Masuk"}
+          </button>
+        </p>
+
+        <p className="mt-10 text-xs leading-relaxed text-ink-2">
+          Kami tidak pernah mengirim lamaran atas namamu. Setiap keputusan tetap di tanganmu.
+        </p>
+      </section>
     </main>
   );
 }

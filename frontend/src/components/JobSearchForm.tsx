@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import type { JobSearchRequest } from "@/lib/types";
-import { ArrowDot, Button, Icon, inputClass } from "./ui";
+import { Button, Icon } from "./ui";
 
 export type SearchValues = {
   job_title: string;
@@ -12,11 +12,12 @@ export type SearchValues = {
 };
 
 const segment =
-  "flex min-w-0 flex-1 flex-col justify-center rounded-full px-5 py-2 outline outline-1 outline-transparent transition-[outline-color] duration-[var(--dur-fast)] hover:outline-line-strong has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ink";
-const bareInput = "w-full min-w-0 bg-transparent text-body text-ink placeholder:text-ink-3 focus:outline-none";
-const divider = "hidden h-8 w-px shrink-0 bg-line md:block";
+  "flex min-w-0 flex-1 flex-col justify-center rounded-full px-5 py-2 outline outline-1 outline-transparent transition-[outline-color] duration-[var(--dur-fast)] hover:outline-white/15 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-white/60";
+const segmentLabel = "text-xs text-ink-2";
+const bareInput = "w-full min-w-0 bg-transparent text-base text-ink placeholder:text-ink-3 focus:outline-none";
+const divider = "hidden h-8 w-px shrink-0 bg-white/15 md:block";
 
-/* Wide white pill search bar that sits in the dark jobs hero. Stacks on mobile. */
+/* Wide glass search bar in the jobs hero. Stacks on mobile. */
 export default function JobSearchForm({
   initialValues,
   onSearch,
@@ -56,10 +57,10 @@ export default function JobSearchForm({
   }
 
   return (
-    <form noValidate onSubmit={handleSubmit} aria-label="Cari lowongan">
-      <div className="tone-light flex flex-col gap-1 rounded-md bg-bg p-2 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.6)] md:flex-row md:items-center md:rounded-full md:p-1.5">
+    <form noValidate onSubmit={handleSubmit} aria-label="Cari lowongan" className="w-full">
+      <div className="liquid-glass flex flex-col gap-1 rounded-[28px] bg-[hsl(201_100%_13%/0.6)] p-2 backdrop-blur-xl md:bg-white/[0.05] md:backdrop-blur-md md:flex-row md:items-center md:rounded-full md:p-1.5">
         <div className={`${segment} ${titleError ? "ring-2 ring-danger" : ""}`}>
-          <label htmlFor="job_title" className="text-tag font-bold uppercase text-ink">
+          <label htmlFor="job_title" className={segmentLabel}>
             Peran
           </label>
           <input
@@ -76,7 +77,7 @@ export default function JobSearchForm({
         </div>
         <span aria-hidden="true" className={divider} />
         <div className={`${segment} ${locationError ? "ring-2 ring-danger" : ""}`}>
-          <label htmlFor="location" className="text-tag font-bold uppercase text-ink">
+          <label htmlFor="location" className={segmentLabel}>
             Lokasi
           </label>
           <input
@@ -91,8 +92,8 @@ export default function JobSearchForm({
           />
         </div>
         <span aria-hidden="true" className={divider} />
-        <label className="flex min-h-12 shrink-0 cursor-pointer items-center justify-between gap-3 rounded-full px-5 outline outline-1 outline-transparent transition-[outline-color] duration-[var(--dur-fast)] hover:outline-line-strong has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ink">
-          <span className="text-body text-ink">Remote saja</span>
+        <label className="flex min-h-12 shrink-0 cursor-pointer items-center justify-between gap-3 rounded-full px-5 outline outline-1 outline-transparent transition-[outline-color] duration-[var(--dur-fast)] hover:outline-white/15 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-white/60">
+          <span className="text-sm text-ink">Remote saja</span>
           <input
             type="checkbox"
             role="switch"
@@ -102,12 +103,11 @@ export default function JobSearchForm({
           />
           <span
             aria-hidden="true"
-            className="relative h-7 w-12 shrink-0 rounded-full border border-line-strong bg-sunken transition-colors duration-[var(--dur-base)] ease-[var(--ease)] peer-checked:border-ink peer-checked:bg-ink after:absolute after:top-[3px] after:left-[3px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgb(0_0_0/0.25)] after:transition-transform after:duration-[var(--dur-base)] after:ease-[var(--ease-out)] after:content-[''] peer-checked:after:translate-x-5"
+            className="relative h-7 w-12 shrink-0 rounded-full bg-white/15 transition-colors duration-[var(--dur-base)] ease-[var(--ease)] peer-checked:bg-white after:absolute after:top-1 after:left-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-[transform,background-color] after:duration-[var(--dur-base)] after:ease-[var(--ease-out)] after:content-[''] peer-checked:after:translate-x-5 peer-checked:after:bg-[hsl(201_100%_13%)]"
           />
         </label>
-        <Button type="submit" loading={loading} loadingText="Mencari…" className="min-h-12 shrink-0 gap-3 pr-1.5 md:ml-1">
+        <Button type="submit" loading={loading} loadingText="Mencari…" className="min-h-12 shrink-0 px-8 md:ml-1">
           Cari
-          <ArrowDot inverse className="h-9 w-9" />
         </Button>
       </div>
 
@@ -129,21 +129,19 @@ export default function JobSearchForm({
       )}
 
       {showCompanies && (
-        <div className="mt-5 max-w-xl">
-          <label htmlFor="target_companies" className="text-meta font-semibold text-ink">
-            Perusahaan atau bidang incaran <span className="font-normal text-ink-2">(opsional)</span>
+        <div className="mt-4 max-w-xl">
+          <label htmlFor="target_companies" className="sr-only">
+            Perusahaan atau bidang incaran (opsional)
           </label>
-          <input
-            id="target_companies"
-            value={targetCompanies}
-            onChange={(e) => setTargetCompanies(e.target.value)}
-            placeholder="Stripe, Vercel, fintech"
-            aria-describedby="target_companies-help"
-            className={`${inputClass} mt-2`}
-          />
-          <p id="target_companies-help" className="mt-2 text-meta text-ink-2">
-            Pisahkan dengan koma.
-          </p>
+          <div className="liquid-glass flex h-12 items-center rounded-full bg-white/[0.05] backdrop-blur-md focus-within:shadow-[inset_0_1px_1px_rgb(255_255_255/0.1),0_0_0_3px_rgb(255_255_255/0.22)]">
+            <input
+              id="target_companies"
+              value={targetCompanies}
+              onChange={(e) => setTargetCompanies(e.target.value)}
+              placeholder="Perusahaan atau bidang incaran, pisahkan dengan koma"
+              className="h-full w-full min-w-0 bg-transparent px-6 text-sm text-ink placeholder:text-ink-2 focus:outline-none"
+            />
+          </div>
         </div>
       )}
 
@@ -152,13 +150,13 @@ export default function JobSearchForm({
           <button
             type="button"
             onClick={() => setShowCompanies(true)}
-            className="inline-flex min-h-11 items-center gap-2 text-meta text-ink-2 transition-colors hover:text-ink"
+            className="inline-flex min-h-11 items-center gap-2 text-sm text-ink-2 transition-colors hover:text-ink"
           >
             <Icon name="plus" className="h-4 w-4" />
             Perusahaan target
           </button>
         )}
-        <p className="text-meta text-ink-2">Kriteria tersimpan otomatis setiap kali kamu mencari.</p>
+        <p className="text-sm text-ink-2">Kriteria tersimpan otomatis setiap kali kamu mencari.</p>
       </div>
     </form>
   );
