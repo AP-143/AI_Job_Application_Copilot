@@ -20,9 +20,9 @@ applies on your behalf.
 
 ## Screenshots
 
-| Profile | Job search |
+| Landing | Job search |
 |---|---|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Jobs](docs/screenshots/jobs.png) |
+| ![Landing](docs/screenshots/landing.png) | ![Jobs](docs/screenshots/jobs.png) |
 
 ![Login](docs/screenshots/login.png)
 
